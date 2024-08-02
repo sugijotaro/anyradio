@@ -25,3 +25,16 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Android
+android/app/*.keystore
+android/local.properties
+android/.gradle
+android/app/build/
+
+# iOS
+ios/Flutter/.last_build_id
+ios/Pods
+ios/Runner.xcworkspace
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
