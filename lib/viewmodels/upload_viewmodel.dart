@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../services/upload_service.dart';
+import 'package:uuid/uuid.dart';
 
 class UploadViewModel extends ChangeNotifier {
   final UploadService _uploadService = UploadService();
@@ -13,12 +14,7 @@ class UploadViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      List<String> downloadUrls = [];
-      for (var file in files) {
-        String downloadUrl = await _uploadService.uploadFile(file);
-        downloadUrls.add(downloadUrl);
-      }
-      await _uploadService.saveUploadData(downloadUrls);
+      await _uploadService.uploadFiles(files);
     } catch (e) {
       print(e);
     } finally {
