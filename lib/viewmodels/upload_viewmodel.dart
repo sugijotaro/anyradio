@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../services/upload_service.dart';
-import 'package:uuid/uuid.dart';
 
 class UploadViewModel extends ChangeNotifier {
   final UploadService _uploadService = UploadService();
