@@ -1,6 +1,6 @@
 from firebase_admin import credentials, initialize_app, firestore
 from firebase_functions import firestore_fn
-import requests
+import google.generativeai as genai
 import os
 
 # Firebase Admin SDKの初期化
@@ -8,14 +8,18 @@ cred = credentials.Certificate('anyradio-693a9-9571794b8f6e.json')
 app = initialize_app(cred)
 db = firestore.client()
 
-# Gemini APIとTTS APIの設定
-GEMINI_API_ENDPOINT = os.environ.get('GEMINI_API_ENDPOINT')
+# Gemini APIの設定
+genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+# TTS APIのエンドポイント
 TTS_API_ENDPOINT = os.environ.get('TTS_API_ENDPOINT')
 
 def call_gemini_api(file_url):
-    response = requests.post(GEMINI_API_ENDPOINT, json={'fileUrl': file_url})
-    response.raise_for_status()
-    return response.json().get('text', '')
+    # Gemini APIを呼び出してテキストを生成
+    prompt = f"Generate text based on the content at {file_url}"
+    response = model.generate_content(prompt)
+    return response.text
 
 def generate_audio_from_text(text):
     response = requests.post(TTS_API_ENDPOINT, json={'text': text})
