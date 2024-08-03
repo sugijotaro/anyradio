@@ -10,17 +10,17 @@ class UploadScreen extends StatefulWidget {
 }
 
 class _UploadScreenState extends State<UploadScreen> {
-  File? _imageFile;
+  List<File> _imageFiles = [];
   final picker = ImagePicker();
 
-  Future<void> _pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickImages() async {
+    final pickedFiles = await picker.pickMultiImage();
 
     setState(() {
-      if (pickedFile != null) {
-        _imageFile = File(pickedFile.path);
+      if (pickedFiles != null) {
+        _imageFiles = pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
       } else {
-        print('No image selected.');
+        print('No images selected.');
       }
     });
   }
@@ -31,7 +31,7 @@ class _UploadScreenState extends State<UploadScreen> {
       create: (_) => UploadViewModel(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Upload Image/Video'),
+          title: Text('Upload Images/Videos'),
         ),
         body: Consumer<UploadViewModel>(
           builder: (context, viewModel, child) {
@@ -39,21 +39,33 @@ class _UploadScreenState extends State<UploadScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  _imageFile == null
-                      ? Text('No image selected.')
-                      : Image.file(_imageFile!),
+                  _imageFiles.isEmpty
+                      ? Text('No images selected.')
+                      : Expanded(
+                          child: GridView.builder(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3, // 3列のグリッド
+                              crossAxisSpacing: 4.0,
+                              mainAxisSpacing: 4.0,
+                            ),
+                            itemCount: _imageFiles.length,
+                            itemBuilder: (context, index) {
+                              return Image.file(_imageFiles[index], fit: BoxFit.cover);
+                            },
+                          ),
+                        ),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: _pickImage,
-                    child: Text('Pick Image'),
+                    onPressed: _pickImages,
+                    child: Text('Pick Images'),
                   ),
                   SizedBox(height: 20),
                   viewModel.isUploading
                       ? CircularProgressIndicator()
                       : ElevatedButton(
                           onPressed: () {
-                            if (_imageFile != null) {
-                              viewModel.uploadFile(_imageFile!);
+                            if (_imageFiles.isNotEmpty) {
+                              viewModel.uploadFiles(_imageFiles);
                             }
                           },
                           child: Text('Upload'),

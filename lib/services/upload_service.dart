@@ -15,12 +15,12 @@ class UploadService {
     return await taskSnapshot.ref.getDownloadURL();
   }
 
-  Future<void> saveUploadData(String downloadUrl) async {
+  Future<void> saveUploadData(List<String> downloadUrls) async {
     String uploadId = Uuid().v4();
     await FirebaseFirestore.instance.collection('uploads').doc(uploadId).set({
       'id': uploadId,
       'userId': 'dummyUserId',
-      'fileUrl': downloadUrl,
+      'fileUrls': downloadUrls,
       'uploadDate': Timestamp.now(),
       'status': 'processing',
     });

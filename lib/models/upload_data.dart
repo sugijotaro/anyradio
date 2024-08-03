@@ -3,14 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UploadData {
   String id;
   String userId;
-  String fileUrl;
+  List<String> fileUrls;
   DateTime uploadDate;
   String status;
 
   UploadData({
     required this.id,
     required this.userId,
-    required this.fileUrl,
+    required this.fileUrls,
     required this.uploadDate,
     required this.status,
   });
@@ -19,7 +19,7 @@ class UploadData {
     return UploadData(
       id: doc.id,
       userId: doc['userId'],
-      fileUrl: doc['fileUrl'],
+      fileUrls: List<String>.from(doc['fileUrls']),
       uploadDate: (doc['uploadDate'] as Timestamp).toDate(),
       status: doc['status'],
     );
@@ -28,7 +28,7 @@ class UploadData {
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
-      'fileUrl': fileUrl,
+      'fileUrls': fileUrls,
       'uploadDate': uploadDate,
       'status': status,
     };

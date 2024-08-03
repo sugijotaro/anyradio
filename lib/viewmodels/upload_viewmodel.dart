@@ -8,13 +8,17 @@ class UploadViewModel extends ChangeNotifier {
 
   bool get isUploading => _isUploading;
 
-  Future<void> uploadFile(File file) async {
+  Future<void> uploadFiles(List<File> files) async {
     _isUploading = true;
     notifyListeners();
 
     try {
-      String downloadUrl = await _uploadService.uploadFile(file);
-      await _uploadService.saveUploadData(downloadUrl);
+      List<String> downloadUrls = [];
+      for (var file in files) {
+        String downloadUrl = await _uploadService.uploadFile(file);
+        downloadUrls.add(downloadUrl);
+      }
+      await _uploadService.saveUploadData(downloadUrls);
     } catch (e) {
       print(e);
     } finally {
