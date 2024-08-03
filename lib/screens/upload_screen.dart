@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:provider/provider.dart';
+import '../viewmodels/upload_viewmodel.dart';
 
 class UploadScreen extends StatefulWidget {
   @override
@@ -23,37 +25,43 @@ class _UploadScreenState extends State<UploadScreen> {
     });
   }
 
-  Future<void> _uploadImage() async {
-    if (_imageFile != null) {
-      // アップロード処理
-      // uploadFileAndCreateUploadData(userId, _imageFile!);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Upload Image/Video'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _imageFile == null
-                ? Text('No image selected.')
-                : Image.file(_imageFile!),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: Text('Pick Image'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _uploadImage,
-              child: Text('Upload'),
-            ),
-          ],
+    return ChangeNotifierProvider(
+      create: (_) => UploadViewModel(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Upload Image/Video'),
+        ),
+        body: Consumer<UploadViewModel>(
+          builder: (context, viewModel, child) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  _imageFile == null
+                      ? Text('No image selected.')
+                      : Image.file(_imageFile!),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _pickImage,
+                    child: Text('Pick Image'),
+                  ),
+                  SizedBox(height: 20),
+                  viewModel.isUploading
+                      ? CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: () {
+                            if (_imageFile != null) {
+                              viewModel.uploadFile(_imageFile!);
+                            }
+                          },
+                          child: Text('Upload'),
+                        ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
