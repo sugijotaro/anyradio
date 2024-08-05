@@ -3,6 +3,7 @@ from firebase_functions import firestore_fn
 import google.generativeai as genai
 import os
 import urllib.request
+import mimetypes
 
 # Firebase Admin SDKの初期化
 cred = credentials.Certificate('anyradio-693a9-9571794b8f6e.json')
@@ -28,18 +29,27 @@ def download_file(url, dst_path):
 
 def upload_files(file_urls):
     uploaded_files = []
-    for file_url in file_urls:
+    for i, file_url in enumerate(file_urls):
         # ファイルをダウンロードして一時的に保存する
-        file_name = file_url.split('/')[-1]
+        file_name = f"file{i+1}"
         print(f"File name: {file_name}")
 
         download_file(file_url, file_name)
 
+        # ファイルのMIMEタイプを取得
+        mime_type, _ = mimetypes.guess_type(file_name)
+        if mime_type is None:
+            mime_type = 'image/jpeg'  # デフォルトのMIMEタイプ
+
         # ファイルをGemini APIにアップロードする
         try:
-            uploaded_file = genai.upload_file(path=file_name, display_name=file_name)
+            uploaded_file = genai.upload_file(path=file_name, display_name=file_name, mime_type=mime_type)
             uploaded_files.append(uploaded_file)
-            print(f"File uploaded successfully: {file_name}")
+            print(f"Uploaded file '{uploaded_file.display_name}' as: {uploaded_file.uri}")
+
+            file = genai.get_file(name=uploaded_file.name)
+            print(f"Retrieved file '{file.display_name}' as: {uploaded_file.uri}")
+
         except Exception as e:
             print(f"Error uploading file to Gemini API: {e}")
             raise
@@ -49,15 +59,9 @@ def upload_files(file_urls):
 
     return uploaded_files
 
-def call_gemini_api(uploaded_files, prompt_text):
-    # アップロードされたファイルのURIを取得
-    file_uris = [file.uri for file in uploaded_files]
-    print(f"File URIs: {file_uris}")
-
-    # プロンプトにファイルURIを含める
-    prompt = [prompt_text] + file_uris
+def call_gemini_api(uploaded_files):
     try:
-        response = model.generate_content(prompt)
+        response = model.generate_content([uploaded_files[0], "Describe how this product might be manufactured."])
         print(f"Generated content: {response.text}")
         return response.text
     except Exception as e:
@@ -74,14 +78,13 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
     data = doc.to_dict()
     file_urls = data.get('fileUrls', [])
     upload_id = event.params.get('uploadId')
-    prompt_text = data.get('promptText', 'Describe these images.')
 
     try:
         # ファイルをアップロードしてURIを取得
         uploaded_files = upload_files(file_urls)
         
         # Gemini APIを呼び出してテキストを生成
-        generated_text = call_gemini_api(uploaded_files, prompt_text)
+        generated_text = call_gemini_api(uploaded_files)
 
         # TTS APIを呼び出して音声を生成（現在はコメントアウト）
         # audio_url = generate_audio_from_text(generated_text)
