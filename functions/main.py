@@ -47,9 +47,6 @@ def upload_files(file_urls):
             uploaded_files.append(uploaded_file)
             print(f"Uploaded file '{uploaded_file.display_name}' as: {uploaded_file.uri}")
 
-            file = genai.get_file(name=uploaded_file.name)
-            print(f"Retrieved file '{file.display_name}' as: {uploaded_file.uri}")
-
         except Exception as e:
             print(f"Error uploading file to Gemini API: {e}")
             raise
@@ -60,8 +57,10 @@ def upload_files(file_urls):
     return uploaded_files
 
 def call_gemini_api(uploaded_files):
+    # プロンプトにファイルURIを含める
+    prompt = ["I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a script to read out loud. Avoid including any sound effects or stage directions in your script, and do not use any headings or labels. Just provide the plain text that can be read aloud."] + uploaded_files
     try:
-        response = model.generate_content([uploaded_files[0], "Describe how this product might be manufactured."])
+        response = model.generate_content(prompt)
         print(f"Generated content: {response.text}")
         return response.text
     except Exception as e:
