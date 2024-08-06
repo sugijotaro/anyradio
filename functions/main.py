@@ -58,7 +58,7 @@ def upload_files(file_urls):
 
 def call_gemini_api(uploaded_files):
     # プロンプトにファイルURIを含める
-    prompt = ["I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a script to read out loud. Avoid including any sound effects or stage directions in your script, and do not use any headings or labels. Just provide the plain text that can be read aloud."] + uploaded_files
+    prompt = ["I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a lively, engaging script to read out loud. The script should feel like you are telling a story to the listeners, evoking emotions and creating vivid imagery in their minds. Avoid including any sound effects or stage directions, and do not use any headings or labels. Just provide the plain text that can be read aloud."] + uploaded_files
     try:
         response = model.generate_content(prompt)
         print(f"Generated content: {response.text}")
