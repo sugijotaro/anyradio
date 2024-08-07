@@ -1,21 +1,21 @@
-from firebase_admin import credentials, initialize_app, firestore
+from firebase_admin import credentials, initialize_app, firestore, storage
 from firebase_functions import firestore_fn
 import google.generativeai as genai
+import tempfile
 import os
 import urllib.request
 import mimetypes
+from google.cloud import texttospeech
 
 # Firebase Admin SDKの初期化
 cred = credentials.Certificate('anyradio-693a9-9571794b8f6e.json')
 app = initialize_app(cred)
 db = firestore.client()
+bucket = storage.bucket('anyradio-693a9.appspot.com')
 
 # Gemini APIの設定
 genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
 model = genai.GenerativeModel('gemini-1.5-flash')
-
-# TTS APIのエンドポイント
-TTS_API_ENDPOINT = os.environ.get('TTS_API_ENDPOINT')
 
 def download_file(url, dst_path):
     try:
@@ -67,6 +67,45 @@ def call_gemini_api(uploaded_files):
         print(f"Error generating content with Gemini API: {e}")
         raise
 
+def generate_audio_from_text(text):
+    # TTSクライアントの初期化
+    client = texttospeech.TextToSpeechClient()
+
+    # 音声合成の入力設定
+    synthesis_input = texttospeech.SynthesisInput(text=text)
+
+    # 音声のパラメータ設定
+    voice = texttospeech.VoiceSelectionParams(
+        language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+    )
+
+    # オーディオの設定
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.MP3
+    )
+
+    # 音声合成のリクエスト
+    response = client.synthesize_speech(
+        input=synthesis_input, voice=voice, audio_config=audio_config
+    )
+
+    # 一時ファイルに音声を書き込む
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as out:
+        out.write(response.audio_content)
+        temp_file_path = out.name
+        print(f'Audio content written to temporary file "{temp_file_path}"')
+
+    # Google Cloud Storageにアップロード
+    blob = bucket.blob(f'audio/{temp_file_path.split("/")[-1]}')
+
+    blob.upload_from_filename(temp_file_path)
+    print(f'File uploaded to {blob.public_url}')
+
+    # 一時ファイルを削除
+    os.remove(temp_file_path)
+
+    return blob.public_url
+
 @firestore_fn.on_document_created(document="uploads/{uploadId}")
 def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None]) -> None:
     doc = event.data
@@ -85,9 +124,8 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         # Gemini APIを呼び出してテキストを生成
         generated_text = call_gemini_api(uploaded_files)
 
-        # TTS APIを呼び出して音声を生成（現在はコメントアウト）
-        # audio_url = generate_audio_from_text(generated_text)
-        audio_url = ''
+        # TTS APIを呼び出して音声を生成
+        audio_url = generate_audio_from_text(generated_text)
 
         # Radioドキュメントを作成
         radio_data = {
