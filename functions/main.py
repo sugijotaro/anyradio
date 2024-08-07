@@ -56,9 +56,7 @@ def upload_files(file_urls):
 
     return uploaded_files
 
-def call_gemini_api(uploaded_files):
-    # プロンプトにファイルURIを含める
-    prompt = ["I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a lively, engaging script to read out loud. The script should feel like you are telling a story to the listeners, evoking emotions and creating vivid imagery in their minds. Avoid including any sound effects or stage directions, and do not use any headings or labels. Just provide the plain text that can be read aloud."] + uploaded_files
+def call_gemini_api(prompt):
     try:
         response = model.generate_content(prompt)
         print(f"Generated content: {response.text}")
@@ -122,15 +120,27 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         uploaded_files = upload_files(file_urls)
         
         # Gemini APIを呼び出してテキストを生成
-        generated_text = call_gemini_api(uploaded_files)
+        generated_script = call_gemini_api(
+            ["I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a lively, engaging script to read out loud. The script should feel like you are telling a story to the listeners, evoking emotions and creating vivid imagery in their minds. Avoid including any sound effects or stage directions, and do not use any headings or labels. Just provide the plain text that can be read aloud."] + uploaded_files
+        )
+
+        # Gemini APIを呼び出してタイトルと説明文を生成
+        generated_title = call_gemini_api(
+            [f"Based on the contents of the radio script below, please think of an appropriate title. Please tell me just the title briefly.\n\n{generated_script}"]
+        )
+
+        generated_description = call_gemini_api(
+            [f"Think of a suitable description based on the contents of the radio script below. Please give us a brief description. We will use that sentence as the radio description.\n\n{generated_script}"]
+        )
 
         # TTS APIを呼び出して音声を生成
-        audio_url = generate_audio_from_text(generated_text, upload_id)
+        audio_url = generate_audio_from_text(generated_script, upload_id)
 
         # Radioドキュメントを作成
         radio_data = {
-            'title': 'Generated Radio Title',
-            'description': generated_text,
+            'title': generated_title,
+            'description': generated_description,
+            'script': generated_script,
             'audioUrl': audio_url,
             'imageUrls': file_urls,
             'uploaderId': data.get('userId'),

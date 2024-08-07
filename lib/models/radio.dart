@@ -4,6 +4,7 @@ class Radio {
   String id;
   String title;
   String description;
+  String script;
   String audioUrl;
   String imageUrl;
   String uploaderId;
@@ -20,6 +21,7 @@ class Radio {
     required this.id,
     required this.title,
     required this.description,
+    required this.script,
     required this.audioUrl,
     required this.imageUrl,
     required this.uploaderId,
@@ -38,11 +40,13 @@ class Radio {
       id: doc.id,
       title: doc['title'],
       description: doc['description'],
+      script: doc['script'],
       audioUrl: doc['audioUrl'],
       imageUrl: doc['imageUrl'],
       uploaderId: doc['uploaderId'],
       uploadDate: (doc['uploadDate'] as Timestamp).toDate(),
-      comments: (doc['comments'] as List).map((c) => Comment.fromMap(c)).toList(),
+      comments:
+          (doc['comments'] as List).map((c) => Comment.fromMap(c)).toList(),
       likes: doc['likes'],
       genre: doc['genre'],
       playCount: doc['playCount'],
@@ -56,6 +60,7 @@ class Radio {
     return {
       'title': title,
       'description': description,
+      'script': script,
       'audioUrl': audioUrl,
       'imageUrl': imageUrl,
       'uploaderId': uploaderId,
