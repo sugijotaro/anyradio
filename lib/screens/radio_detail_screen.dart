@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:just_audio/just_audio.dart';
 import '../viewmodels/radio_detail_viewmodel.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 class RadioDetailScreen extends StatelessWidget {
   final String radioId;
@@ -70,17 +70,17 @@ class RadioDetailScreen extends StatelessWidget {
   }
 
   void _togglePlayPause(String audioUrl, BuildContext context) {
-    AudioPlayer _audioPlayer = AudioPlayer();
+    final AudioPlayer _audioPlayer = AudioPlayer();
     bool _isPlaying = false;
 
-    _audioPlayer.onPlayerStateChanged.listen((PlayerState state) {
-      _isPlaying = state == PlayerState.playing;
+    _audioPlayer.playerStateStream.listen((playerState) {
+      _isPlaying = playerState.playing;
     });
 
     if (_isPlaying) {
       _audioPlayer.pause();
     } else {
-      _audioPlayer.play(UrlSource(audioUrl));
+      _audioPlayer.setUrl(audioUrl).then((_) => _audioPlayer.play());
     }
   }
 }
