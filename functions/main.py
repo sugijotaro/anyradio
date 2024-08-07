@@ -96,13 +96,11 @@ def generate_audio_from_text(text, upload_id):
     # Google Cloud Storageにアップロード
     blob = bucket.blob(f'audio/{upload_id}/{temp_file_path.split("/")[-1]}')
     blob.upload_from_filename(temp_file_path)
-    print(f'File uploaded to gs://{bucket.name}/audio/{upload_id}/{temp_file_path.split("/")[-1]}')
+    blob.make_public()
 
-    # 一時ファイルを削除
     os.remove(temp_file_path)
 
-    # 正しいURL形式を返す
-    return f'https://storage.cloud.google.com/{bucket.name}/audio/{upload_id}/{temp_file_path.split("/")[-1]}'
+    return blob.public_url
 
 @firestore_fn.on_document_created(document="uploads/{uploadId}")
 def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None]) -> None:
