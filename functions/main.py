@@ -67,7 +67,7 @@ def call_gemini_api(uploaded_files):
         print(f"Error generating content with Gemini API: {e}")
         raise
 
-def generate_audio_from_text(text):
+def generate_audio_from_text(text, upload_id):
     # TTSクライアントの初期化
     client = texttospeech.TextToSpeechClient()
 
@@ -96,7 +96,7 @@ def generate_audio_from_text(text):
         print(f'Audio content written to temporary file "{temp_file_path}"')
 
     # Google Cloud Storageにアップロード
-    blob = bucket.blob(f'audio/{temp_file_path.split("/")[-1]}')
+    blob = bucket.blob(f'audio/{upload_id}/{temp_file_path.split("/")[-1]}')
 
     blob.upload_from_filename(temp_file_path)
     print(f'File uploaded to {blob.public_url}')
@@ -125,7 +125,7 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         generated_text = call_gemini_api(uploaded_files)
 
         # TTS APIを呼び出して音声を生成
-        audio_url = generate_audio_from_text(generated_text)
+        audio_url = generate_audio_from_text(generated_text, upload_id)
 
         # Radioドキュメントを作成
         radio_data = {
