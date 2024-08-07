@@ -6,7 +6,7 @@ class Radio {
   String description;
   String script;
   String audioUrl;
-  String imageUrl;
+  List<String> imageUrls;
   String uploaderId;
   DateTime uploadDate;
   List<Comment> comments;
@@ -23,7 +23,7 @@ class Radio {
     required this.description,
     required this.script,
     required this.audioUrl,
-    required this.imageUrl,
+    required this.imageUrls,
     required this.uploaderId,
     required this.uploadDate,
     required this.comments,
@@ -42,7 +42,7 @@ class Radio {
       description: doc['description'],
       script: doc['script'],
       audioUrl: doc['audioUrl'],
-      imageUrl: doc['imageUrl'],
+      imageUrls: List<String>.from(doc['imageUrls']),
       uploaderId: doc['uploaderId'],
       uploadDate: (doc['uploadDate'] as Timestamp).toDate(),
       comments:
@@ -62,7 +62,7 @@ class Radio {
       'description': description,
       'script': script,
       'audioUrl': audioUrl,
-      'imageUrl': imageUrl,
+      'imageUrls': imageUrls,
       'uploaderId': uploaderId,
       'uploadDate': uploadDate,
       'comments': comments.map((c) => c.toMap()).toList(),

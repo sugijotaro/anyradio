@@ -1,44 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'radio_player_screen.dart';
+import 'package:provider/provider.dart';
+import '../viewmodels/radio_list_viewmodel.dart';
+import 'radio_detail_screen.dart';
 
 class RadioListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Radio List'),
-      ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('radios').snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
+    return ChangeNotifierProvider(
+      create: (_) => RadioListViewModel(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Radio List'),
+        ),
+        body: Consumer<RadioListViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.radios.isEmpty) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-          var radios = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: radios.length,
-            itemBuilder: (context, index) {
-              var radio = radios[index];
-              return ListTile(
-                title: Text(radio['title']),
-                subtitle: Text(radio['description']),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RadioPlayerScreen(
-                        audioUrl: radio['audioUrl'],
+            return ListView.builder(
+              itemCount: viewModel.radios.length,
+              itemBuilder: (context, index) {
+                var radio = viewModel.radios[index];
+                return ListTile(
+                  title: Text(radio.title),
+                  subtitle: Text(radio.description),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            RadioDetailScreen(radioId: radio.id),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
+                    );
+                  },
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
