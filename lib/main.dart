@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'screens/radio_list_screen.dart';
 import 'screens/upload_screen.dart';
 import 'firebase_options.dart';
-import 'service_locator.dart';
+import 'services/service_locator.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await setupServiceLocator();
+  await initServiceLocator();
   runApp(const MyApp());
 }
 

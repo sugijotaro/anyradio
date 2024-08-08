@@ -5,8 +5,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/radio.dart' as custom_radio;
 import '../services/radio_service.dart';
-import '../services/audio_service_handler.dart';
-import '../service_locator.dart';
+import '../services/service_locator.dart';
+import '../services/audio_handler.dart';
 
 enum AudioState {
   ready,
@@ -30,6 +30,7 @@ class ProgressBarState {
 class RadioDetailViewModel extends ChangeNotifier {
   final RadioService _radioService = RadioService();
   custom_radio.Radio? radio;
+  final AudioServiceHandler _audioHandler = getIt<AudioServiceHandler>();
 
   ProgressBarState progressBarState = ProgressBarState(
     current: Duration.zero,
@@ -37,9 +38,8 @@ class RadioDetailViewModel extends ChangeNotifier {
     total: Duration.zero,
   );
   AudioState audioState = AudioState.paused;
-  late StreamSubscription _playerStateSubscription;
+  late StreamSubscription _playbackSubscription;
   late StreamSubscription _progressBarSubscription;
-  final AudioServiceHandler _audioHandler = getIt<AudioServiceHandler>();
 
   Future<void> fetchRadioById(String id) async {
     radio = await _radioService.getRadioById(id);
@@ -54,8 +54,8 @@ class RadioDetailViewModel extends ChangeNotifier {
       id: radio!.audioUrl,
       album: "AnyRadio",
       title: radio!.title,
-      artist: "AnyRadio Artist",
-      artUri: Uri.parse(radio!.imageUrls.isNotEmpty ? radio!.imageUrls[0] : ''),
+      artist: radio!.uploaderId,
+      artUri: Uri.parse(radio!.imageUrls.first),
     );
     _audioHandler.initPlayer(mediaItem);
     _listenToPlaybackState();
@@ -79,7 +79,7 @@ class RadioDetailViewModel extends ChangeNotifier {
   }
 
   void _listenToPlaybackState() {
-    _playerStateSubscription =
+    _playbackSubscription =
         _audioHandler.playbackState.listen((PlaybackState state) {
       if (isLoadingState(state)) {
         setAudioState(AudioState.loading);
@@ -134,7 +134,7 @@ class RadioDetailViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _audioHandler.stop();
-    _playerStateSubscription.cancel();
+    _playbackSubscription.cancel();
     _progressBarSubscription.cancel();
     super.dispose();
   }
