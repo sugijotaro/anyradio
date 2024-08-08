@@ -19,10 +19,10 @@ class AudioServiceHandler extends BaseAudioHandler {
       final playing = player.playing;
       playbackState.add(playbackState.value.copyWith(
         controls: [
-          MediaControl.skipToPrevious,
+          MediaControl.rewind,
           if (playing) MediaControl.pause else MediaControl.play,
+          MediaControl.fastForward,
           MediaControl.stop,
-          MediaControl.skipToNext,
         ],
         systemActions: const {
           MediaAction.seek,
@@ -61,5 +61,23 @@ class AudioServiceHandler extends BaseAudioHandler {
   Future<void> stop() {
     player.stop();
     return super.stop();
+  }
+
+  @override
+  Future<void> fastForward() async {
+    final currentPosition = player.position;
+    final newPosition = currentPosition + Duration(seconds: 10);
+    player.seek(newPosition);
+  }
+
+  @override
+  Future<void> rewind() async {
+    final currentPosition = player.position;
+    final newPosition = currentPosition - Duration(seconds: 10);
+    if (newPosition < Duration.zero) {
+      player.seek(Duration.zero);
+    } else {
+      player.seek(newPosition);
+    }
   }
 }
