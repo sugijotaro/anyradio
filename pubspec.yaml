@@ -38,6 +38,7 @@ dependencies:
   flutter_image_compress: ^2.3.0
   just_audio: ^0.9.39
   audio_video_progress_bar: ^2.0.3
+  audio_service: ^0.18.15
   rxdart: ^0.28.0
 
   # The following adds the Cupertino Icons font to your application.
