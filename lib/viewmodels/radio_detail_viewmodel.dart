@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/radio.dart' as custom_radio;
 import '../services/radio_service.dart';
+import '../services/audio_service_handler.dart';
+import '../service_locator.dart';
 
 enum AudioState {
   ready,
@@ -28,15 +31,15 @@ class RadioDetailViewModel extends ChangeNotifier {
   final RadioService _radioService = RadioService();
   custom_radio.Radio? radio;
 
-  late AudioPlayer _audioPlayer;
   ProgressBarState progressBarState = ProgressBarState(
     current: Duration.zero,
     buffered: Duration.zero,
     total: Duration.zero,
   );
   AudioState audioState = AudioState.paused;
-  late StreamSubscription<PlayerState> _playerStateSubscription;
-  late StreamSubscription<ProgressBarState> _progressBarSubscription;
+  late StreamSubscription _playerStateSubscription;
+  late StreamSubscription _progressBarSubscription;
+  final AudioServiceHandler _audioHandler = getIt<AudioServiceHandler>();
 
   Future<void> fetchRadioById(String id) async {
     radio = await _radioService.getRadioById(id);
@@ -47,16 +50,23 @@ class RadioDetailViewModel extends ChangeNotifier {
   }
 
   void init() {
-    _audioPlayer = AudioPlayer()..setUrl(radio!.audioUrl);
+    final mediaItem = MediaItem(
+      id: radio!.audioUrl,
+      album: "AnyRadio",
+      title: radio!.title,
+      artist: "AnyRadio Artist",
+      artUri: Uri.parse(radio!.imageUrls.isNotEmpty ? radio!.imageUrls[0] : ''),
+    );
+    _audioHandler.initPlayer(mediaItem);
     _listenToPlaybackState();
     _listenForProgressBarState();
   }
 
-  void play() => _audioPlayer.play();
+  void play() => _audioHandler.play();
 
-  void pause() => _audioPlayer.pause();
+  void pause() => _audioHandler.pause();
 
-  void seek(Duration position) => _audioPlayer.seek(position);
+  void seek(Duration position) => _audioHandler.seek(position);
 
   void setAudioState(AudioState state) {
     audioState = state;
@@ -70,7 +80,7 @@ class RadioDetailViewModel extends ChangeNotifier {
 
   void _listenToPlaybackState() {
     _playerStateSubscription =
-        _audioPlayer.playerStateStream.listen((PlayerState state) {
+        _audioHandler.playbackState.listen((PlaybackState state) {
       if (isLoadingState(state)) {
         setAudioState(AudioState.loading);
       } else if (isAudioReady(state)) {
@@ -87,41 +97,43 @@ class RadioDetailViewModel extends ChangeNotifier {
 
   void _listenForProgressBarState() {
     _progressBarSubscription = CombineLatestStream.combine3(
-      _audioPlayer.positionStream,
-      _audioPlayer.bufferedPositionStream,
-      _audioPlayer.durationStream,
-      (Duration current, Duration buffer, Duration? total) => ProgressBarState(
+      AudioService.position,
+      _audioHandler.playbackState,
+      _audioHandler.mediaItem,
+      (Duration current, PlaybackState state, MediaItem? mediaItem) =>
+          ProgressBarState(
         current: current,
-        buffered: buffer,
-        total: total ?? Duration.zero,
+        buffered: state.bufferedPosition,
+        total: mediaItem?.duration ?? Duration.zero,
       ),
     ).listen((ProgressBarState state) => setProgressBarState(state));
   }
 
-  bool isLoadingState(PlayerState state) {
-    return state.processingState == ProcessingState.loading ||
-        state.processingState == ProcessingState.buffering;
+  bool isLoadingState(PlaybackState state) {
+    return state.processingState == AudioProcessingState.loading ||
+        state.processingState == AudioProcessingState.buffering;
   }
 
-  bool isAudioReady(PlayerState state) {
-    return state.processingState == ProcessingState.ready && !state.playing;
+  bool isAudioReady(PlaybackState state) {
+    return state.processingState == AudioProcessingState.ready &&
+        !state.playing;
   }
 
-  bool isAudioPlaying(PlayerState state) {
+  bool isAudioPlaying(PlaybackState state) {
     return state.playing && !hasCompleted(state);
   }
 
-  bool isAudioPaused(PlayerState state) {
+  bool isAudioPaused(PlaybackState state) {
     return !state.playing && !isLoadingState(state);
   }
 
-  bool hasCompleted(PlayerState state) {
-    return state.processingState == ProcessingState.completed;
+  bool hasCompleted(PlaybackState state) {
+    return state.processingState == AudioProcessingState.completed;
   }
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    _audioHandler.stop();
     _playerStateSubscription.cancel();
     _progressBarSubscription.cancel();
     super.dispose();
