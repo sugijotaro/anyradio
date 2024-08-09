@@ -44,9 +44,16 @@ class RadioDetailViewModel extends ChangeNotifier {
   Future<void> fetchRadioById(String id) async {
     radio = await _radioService.getRadioById(id);
     if (radio != null) {
+      incrementPlayCount();
       init();
     }
     notifyListeners();
+  }
+
+  void incrementPlayCount() {
+    if (radio != null) {
+      _radioService.incrementPlayCount(radio!.id);
+    }
   }
 
   void init() {
@@ -133,7 +140,6 @@ class RadioDetailViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _audioHandler.stop();
     _playbackSubscription.cancel();
     _progressBarSubscription.cancel();
     super.dispose();

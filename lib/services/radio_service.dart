@@ -2,11 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/radio.dart';
 
 class RadioService {
-  final CollectionReference _radioCollection =
+  final CollectionReference _radiosCollection =
       FirebaseFirestore.instance.collection('radios');
 
   Stream<List<Radio>> getRadios() {
-    return _radioCollection
+    return _radiosCollection
         .orderBy('uploadDate', descending: true)
         .snapshots()
         .map(
@@ -15,8 +15,19 @@ class RadioService {
         );
   }
 
-  Future<Radio> getRadioById(String id) async {
-    DocumentSnapshot doc = await _radioCollection.doc(id).get();
-    return Radio.fromDocument(doc);
+  Future<Radio?> getRadioById(String id) async {
+    final doc = await _radiosCollection.doc(id).get();
+    if (doc.exists) {
+      return Radio.fromDocument(doc);
+    }
+    return null;
+  }
+
+  Future<void> incrementPlayCount(String radioId) async {
+    final docRef = _radiosCollection.doc(radioId);
+    await docRef.update({
+      'playCount': FieldValue.increment(1),
+      'lastPlayed': FieldValue.serverTimestamp(),
+    });
   }
 }
