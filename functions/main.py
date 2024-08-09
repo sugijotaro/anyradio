@@ -65,17 +65,22 @@ def call_gemini_api(prompt):
         print(f"Error generating content with Gemini API: {e}")
         raise
 
-def generate_audio_from_text(text, upload_id):
+def generate_audio_from_text(text, upload_id, language):
     # TTSクライアントの初期化
     client = texttospeech.TextToSpeechClient()
 
     # 音声合成の入力設定
     synthesis_input = texttospeech.SynthesisInput(text=text)
 
-    # 音声のパラメータ設定
-    voice = texttospeech.VoiceSelectionParams(
-        language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
-    )
+    # 言語と音声の設定
+    if language == "ja":
+        voice = texttospeech.VoiceSelectionParams(
+            language_code="ja-JP", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+        )
+    else:
+        voice = texttospeech.VoiceSelectionParams(
+            language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+        )
 
     # オーディオの設定
     audio_config = texttospeech.AudioConfig(
@@ -112,27 +117,33 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
     data = doc.to_dict()
     file_urls = data.get('fileUrls', [])
     upload_id = event.params.get('uploadId')
+    language = data.get('language', 'en')
 
     try:
-        # ファイルをアップロードしてURIを取得
         uploaded_files = upload_files(file_urls)
         
-        # Gemini APIを呼び出してテキストを生成
-        generated_script = call_gemini_api(
-            ["I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a lively, engaging script to read out loud. The script should feel like you are telling a story to the listeners, evoking emotions and creating vivid imagery in their minds. Avoid including any sound effects or stage directions, and do not use any headings or labels. Just provide the plain text that can be read aloud."] + uploaded_files
-        )
+        # 言語に応じたプロンプトを設定
+        if language == "ja":
+            prompt_script = ["これらの画像や動画ファイルをもとに、ラジオ番組を作成したいと思います。ラジオのナレーターとして、自分が話しているような気分になって、リスナーに感情を呼び起こし、心に鮮やかなイメージを作り出すような、生き生きとした魅力的なスクリプトを書いてください。効果音や演出指示は含まず、見出しやラベルも使用せず、朗読できるようなプレーンテキストだけを提供してください。"] + uploaded_files
+        else:
+            prompt_script = ["I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a lively, engaging script to read out loud. The script should feel like you are telling a story to the listeners, evoking emotions and creating vivid imagery in their minds. Avoid including any sound effects or stage directions, and do not use any headings or labels. Just provide the plain text that can be read aloud."] + uploaded_files
 
-        # Gemini APIを呼び出してタイトルと説明文を生成
-        generated_title = call_gemini_api(
-            [f"Based on the contents of the radio script below, please think of an appropriate title. Please tell me just the title briefly.\n\n{generated_script}"]
-        )
+        # Gemini APIを呼び出してスクリプトを生成
+        generated_script = call_gemini_api(prompt_script)
 
-        generated_description = call_gemini_api(
-            [f"Think of a suitable description based on the contents of the radio script below. Please give us a brief description. We will use that sentence as the radio description.\n\n{generated_script}"]
-        )
+        # スクリプトを使用してタイトルと説明文を生成
+        if language == "ja":
+            prompt_title = [f"以下のラジオスクリプトの内容に基づいて、適切なタイトルを考えてください。タイトルだけを簡潔に教えてください。\n\n{generated_script}"]
+            prompt_description = [f"以下のラジオスクリプトの内容に基づいて、適切な説明文を考えてください。簡潔な説明文を教えてください。その文をラジオの説明文として使用します。\n\n{generated_script}"]
+        else:
+            prompt_title = [f"Based on the contents of the radio script below, please think of an appropriate title. Please tell me just the title briefly.\n\n{generated_script}"]
+            prompt_description = [f"Think of a suitable description based on the contents of the radio script below. Please give us a brief description. We will use that sentence as the radio description.\n\n{generated_script}"]
+
+        generated_title = call_gemini_api(prompt_title)
+        generated_description = call_gemini_api(prompt_description)
 
         # TTS APIを呼び出して音声を生成
-        audio_url = generate_audio_from_text(generated_script, upload_id)
+        audio_url = generate_audio_from_text(generated_script, upload_id, language)
 
         # Radioドキュメントを作成
         radio_data = {
@@ -147,14 +158,13 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
             'likes': 0,
             'genre': 'Generated',
             'playCount': 0,
-            'language': 'en',
+            'language': language,
             'lastPlayed': None,
             'privacyLevel': 'public',
         }
 
         db.collection('radios').document(upload_id).set(radio_data)
 
-        # アップロードステータスを完了に更新
         db.collection('uploads').document(upload_id).update({'status': 'completed'})
 
         print("Radio creation completed and updated in Firestore.")
