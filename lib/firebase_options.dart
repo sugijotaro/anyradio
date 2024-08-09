@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAPzFG1wjqv5tbpoGTqK6GyWrbm_h8pL5g',
-    appId: '1:946245836032:android:43584004e934418f05e7e5',
+    appId: '1:946245836032:android:9d5f8e64f453bb8305e7e5',
     messagingSenderId: '946245836032',
     projectId: 'anyradio-693a9',
     storageBucket: 'anyradio-693a9.appspot.com',
@@ -59,10 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBkvwsFPtwht8KBBoQrrBCudypgXEYfCek',
-    appId: '1:946245836032:ios:d4095c653279d21005e7e5',
+    appId: '1:946245836032:ios:3dced108b16970ee05e7e5',
     messagingSenderId: '946245836032',
     projectId: 'anyradio-693a9',
     storageBucket: 'anyradio-693a9.appspot.com',
-    iosBundleId: 'com.example.anyradio',
+    iosBundleId: 'com.infinity.anyradio',
   );
+
 }
