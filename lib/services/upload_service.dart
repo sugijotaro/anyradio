@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
@@ -26,7 +27,8 @@ class UploadService {
     return File(result.path);
   }
 
-  Future<List<String>> uploadFiles(List<File> files, String userId) async {
+  Future<List<String>> uploadFiles(
+      List<File> files, String userId, String language) async {
     List<String> downloadUrls = [];
     String uploadId = Uuid().v4();
 
@@ -43,18 +45,19 @@ class UploadService {
       downloadUrls.add(downloadUrl);
     }
 
-    await saveUploadData(uploadId, downloadUrls, userId);
+    await saveUploadData(uploadId, downloadUrls, userId, language);
     return downloadUrls;
   }
 
-  Future<void> saveUploadData(
-      String uploadId, List<String> downloadUrls, String userId) async {
+  Future<void> saveUploadData(String uploadId, List<String> downloadUrls,
+      String userId, String language) async {
     await FirebaseFirestore.instance.collection('uploads').doc(uploadId).set({
       'id': uploadId,
       'userId': userId,
       'fileUrls': downloadUrls,
       'uploadDate': Timestamp.now(),
       'status': 'processing',
+      'language': language,
     });
   }
 }

@@ -71,7 +71,8 @@ class _UploadScreenState extends State<UploadScreen> {
                       : ElevatedButton(
                           onPressed: () {
                             if (_imageFiles.isNotEmpty) {
-                              viewModel.uploadFiles(_imageFiles);
+                              viewModel.uploadFiles(
+                                  _imageFiles, l10n.localeName);
                             }
                           },
                           child: Text(l10n.upload),

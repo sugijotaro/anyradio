@@ -6,6 +6,7 @@ class UploadData {
   List<String> fileUrls;
   DateTime uploadDate;
   String status;
+  String language;
 
   UploadData({
     required this.id,
@@ -13,6 +14,7 @@ class UploadData {
     required this.fileUrls,
     required this.uploadDate,
     required this.status,
+    required this.language,
   });
 
   factory UploadData.fromDocument(DocumentSnapshot doc) {
@@ -22,6 +24,7 @@ class UploadData {
       fileUrls: List<String>.from(doc['fileUrls']),
       uploadDate: (doc['uploadDate'] as Timestamp).toDate(),
       status: doc['status'],
+      language: doc['language'],
     );
   }
 
@@ -31,6 +34,7 @@ class UploadData {
       'fileUrls': fileUrls,
       'uploadDate': uploadDate,
       'status': status,
+      'language': language,
     };
   }
 }

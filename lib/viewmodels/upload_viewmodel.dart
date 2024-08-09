@@ -9,14 +9,14 @@ class UploadViewModel extends ChangeNotifier {
 
   bool get isUploading => _isUploading;
 
-  Future<void> uploadFiles(List<File> files) async {
+  Future<void> uploadFiles(List<File> files, String language) async {
     _isUploading = true;
     notifyListeners();
 
     try {
       final userId = AuthViewModel().currentUser?.id;
       if (userId != null) {
-        await _uploadService.uploadFiles(files, userId);
+        await _uploadService.uploadFiles(files, userId, language);
       } else {
         print('Error: User ID is null');
       }
