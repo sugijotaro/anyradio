@@ -1,3 +1,4 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -28,11 +29,13 @@ class _UploadScreenState extends State<UploadScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+
     return ChangeNotifierProvider(
       create: (_) => UploadViewModel(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Upload Images/Videos'),
+          title: Text(l10n.uploadImagesVideos),
         ),
         body: Consumer<UploadViewModel>(
           builder: (context, viewModel, child) {
@@ -41,12 +44,12 @@ class _UploadScreenState extends State<UploadScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   _imageFiles.isEmpty
-                      ? Text('No images selected.')
+                      ? Text(l10n.noImagesSelected)
                       : Expanded(
                           child: GridView.builder(
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3, // 3列のグリッド
+                              crossAxisCount: 3,
                               crossAxisSpacing: 4.0,
                               mainAxisSpacing: 4.0,
                             ),
@@ -60,7 +63,7 @@ class _UploadScreenState extends State<UploadScreen> {
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _pickImages,
-                    child: Text('Pick Images'),
+                    child: Text(l10n.pickImages),
                   ),
                   SizedBox(height: 20),
                   viewModel.isUploading
@@ -71,7 +74,7 @@ class _UploadScreenState extends State<UploadScreen> {
                               viewModel.uploadFiles(_imageFiles);
                             }
                           },
-                          child: Text('Upload'),
+                          child: Text(l10n.upload),
                         ),
                 ],
               ),

@@ -1,10 +1,16 @@
 {
   "@@locale": "en",
   "anyRadio": "AnyRadio",
+  "geminiDescription": "AnyRadio is powered by the advanced Gemini AI technology. Transform your favorite moments, images, and stories into engaging audio content that you can enjoy anywhere, anytime.",
+  "howItWorks": "How It Works:",
+  "howItWorksSteps": "1. Upload your screenshots, images, or video clips.\n2. Gemini AI will generate a script for you.\n3. Listen to your personalized radio program, or share it with friends and family.\n4. Explore popular and trending radio programs created by other users.",
+  "safetyEnjoyment": "Safety and Enjoyment Combined",
+  "safetyEnjoymentDescription": "AnyRadio is designed to make your listening experience both safe and enjoyable. Whether you’re on the go or relaxing at home, you can stay informed and entertained without needing to look at your screen.",
   "getStarted": "Get Started",
   "radioList": "Radio List",
   "createRadio": "Create Radio",
   "radioDetail": "Radio Detail",
+  "uploadImagesVideos": "画像・ビデオをアップロード",
   "pickImages": "Pick Images",
   "noImagesSelected": "No images selected.",
   "upload": "Upload"

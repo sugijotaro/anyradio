@@ -1,10 +1,16 @@
 {
   "@@locale": "ja",
   "anyRadio": "AnyRadio",
+  "geminiDescription": "AnyRadioは先進的なGemini AI技術を利用しています。お気に入りの瞬間、画像、ストーリーを魅力的な音声コンテンツに変換し、どこでもいつでも楽しむことができます。",
+  "howItWorks": "使い方:",
+  "howItWorksSteps": "1. スクリーンショット、画像、ビデオクリップをアップロードします。\n2. Gemini AIがスクリプトを生成します。\n3. あなた専用のラジオ番組を聴くか、友人や家族とシェアします。\n4. 他のユーザーが作成した人気のラジオ番組を探索します。",
+  "safetyEnjoyment": "安全と楽しみの両立",
+  "safetyEnjoymentDescription": "AnyRadioは、安全で楽しいリスニング体験を提供するよう設計されています。移動中や自宅でくつろいでいるときでも、画面を見なくても情報を得たり、楽しんだりすることができます。",
   "getStarted": "今すぐ始める",
   "radioList": "ラジオリスト",
   "createRadio": "ラジオを作成",
   "radioDetail": "ラジオの詳細",
+  "uploadImagesVideos": "Upload Images/Videos",
   "pickImages": "画像を選択",
   "noImagesSelected": "画像が選択されていません。",
   "upload": "アップロード"

@@ -1,3 +1,4 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
@@ -10,11 +11,13 @@ class RadioDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+
     return ChangeNotifierProvider(
       create: (_) => RadioDetailViewModel()..fetchRadioById(radioId),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Radio Detail'),
+          title: Text(l10n.radioDetail),
         ),
         body: Consumer<RadioDetailViewModel>(
           builder: (context, viewModel, child) {
@@ -26,7 +29,6 @@ class RadioDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 画像リストを表示
                   SizedBox(
                     height: 200,
                     child: ListView.builder(

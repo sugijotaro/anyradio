@@ -1,3 +1,4 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'radio_list_screen.dart';
 import 'upload_screen.dart';
@@ -25,19 +26,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Radio List',
+            icon: const Icon(Icons.list),
+            label: l10n.radioList,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Create Radio',
+            icon: const Icon(Icons.add),
+            label: l10n.createRadio,
           ),
         ],
         currentIndex: _selectedIndex,
