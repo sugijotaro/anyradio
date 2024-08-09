@@ -7,7 +7,7 @@ class AuthViewModel extends ChangeNotifier {
   static final AuthViewModel _instance = AuthViewModel._internal();
   factory AuthViewModel() => _instance;
   AuthViewModel._internal() {
-    authenticateAndCreateUser();
+    authenticateUser();
   }
 
   bool isAuthenticated = false;
@@ -15,12 +15,12 @@ class AuthViewModel extends ChangeNotifier {
   User? currentUser;
   String alertMessage = "";
 
-  void authenticateAndCreateUser() {
+  void authenticateUser() {
     if (FirebaseAuth.instance.currentUser == null) {
       FirebaseAuth.instance.signInAnonymously().then((authResult) {
         if (authResult.user != null) {
           currentUser = authResult.user;
-          createNewUserIfNeeded(currentUser!.uid);
+          checkUserExists(currentUser!.uid);
         } else {
           alertMessage = "Authentication failed: Could not retrieve user data.";
           notifyListeners();
@@ -35,25 +35,35 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  void createNewUserIfNeeded(String userId) {
+  void checkUserExists(String userId) {
     final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
     docRef.get().then((document) {
       if (document.exists) {
         fetchCurrentUser();
       } else {
-        final newUser = {'id': userId, 'nickname': 'New User'};
-        docRef.set(newUser).then((_) {
-          currentUser = FirebaseAuth.instance.currentUser;
-          FirebaseAnalytics.instance.logEvent(
-              name: 'new_user_created', parameters: {'user_id': userId});
-          notifyListeners();
-        }).catchError((error) {
-          alertMessage = "User Creation Error: ${error.message}";
-          notifyListeners();
-        });
+        isAuthenticated = false;
+        isFetchingUser = false;
+        notifyListeners();
       }
     }).catchError((error) {
-      alertMessage = "Error fetching user: ${error.message}";
+      alertMessage = "Error checking user: ${error.message}";
+      notifyListeners();
+    });
+  }
+
+  void createNewUser() {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    final newUser = {'id': userId, 'nickname': 'New User'};
+    docRef.set(newUser).then((_) {
+      currentUser = FirebaseAuth.instance.currentUser;
+      isAuthenticated = true;
+      isFetchingUser = false;
+      FirebaseAnalytics.instance
+          .logEvent(name: 'new_user_created', parameters: {'user_id': userId});
+      notifyListeners();
+    }).catchError((error) {
+      alertMessage = "User Creation Error: ${error.message}";
       notifyListeners();
     });
   }

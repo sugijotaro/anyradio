@@ -44,8 +44,12 @@ class MainPage extends StatelessWidget {
       builder: (context, authViewModel, child) {
         if (authViewModel.isFetchingUser) {
           return const Center(child: CircularProgressIndicator());
-        } else if (!authViewModel.isAuthenticated) {
-          return const OnboardingScreen();
+        } else if (authViewModel.isFetchingUser) {
+          return OnboardingScreen(
+            onStartPressed: () {
+              authViewModel.createNewUser();
+            },
+          );
         } else {
           return const HomeScreen();
         }
