@@ -17,10 +17,12 @@ class AuthViewModel extends ChangeNotifier {
   String alertMessage = "";
 
   void authenticateUser() {
-    if (FirebaseAuth.instance.currentUser == null) {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) {
       FirebaseAuth.instance.signInAnonymously().then((authResult) {
-        if (authResult.user != null) {
-          checkUserExists(authResult.user!.uid);
+        final user = authResult.user;
+        if (user != null) {
+          checkUserExists(user.uid);
         } else {
           alertMessage = "Authentication failed: Could not retrieve user data.";
           notifyListeners();
@@ -30,7 +32,7 @@ class AuthViewModel extends ChangeNotifier {
         notifyListeners();
       });
     } else {
-      checkUserExists(FirebaseAuth.instance.currentUser!.uid);
+      checkUserExists(firebaseUser.uid);
     }
   }
 
@@ -54,7 +56,14 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   void createNewUser() {
-    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) {
+      alertMessage = "User is not authenticated.";
+      notifyListeners();
+      return;
+    }
+
+    final userId = firebaseUser.uid;
     final newUser = custom_user.User(
       id: userId,
       username: 'New User',
