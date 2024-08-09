@@ -10,7 +10,7 @@ class AuthViewModel extends ChangeNotifier {
     authenticateUser();
   }
 
-  bool isAuthenticated = false;
+  bool userExists = false;
   bool isFetchingUser = true;
   User? currentUser;
   String alertMessage = "";
@@ -30,8 +30,8 @@ class AuthViewModel extends ChangeNotifier {
         notifyListeners();
       });
     } else {
-      isAuthenticated = true;
-      fetchCurrentUser();
+      currentUser = FirebaseAuth.instance.currentUser;
+      checkUserExists(currentUser!.uid);
     }
   }
 
@@ -39,9 +39,10 @@ class AuthViewModel extends ChangeNotifier {
     final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
     docRef.get().then((document) {
       if (document.exists) {
+        userExists = true;
         fetchCurrentUser();
       } else {
-        isAuthenticated = false;
+        userExists = false;
         isFetchingUser = false;
         notifyListeners();
       }
@@ -57,7 +58,7 @@ class AuthViewModel extends ChangeNotifier {
     final newUser = {'id': userId, 'nickname': 'New User'};
     docRef.set(newUser).then((_) {
       currentUser = FirebaseAuth.instance.currentUser;
-      isAuthenticated = true;
+      userExists = true;
       isFetchingUser = false;
       FirebaseAnalytics.instance
           .logEvent(name: 'new_user_created', parameters: {'user_id': userId});
@@ -70,7 +71,7 @@ class AuthViewModel extends ChangeNotifier {
 
   void signOut() {
     FirebaseAuth.instance.signOut().then((_) {
-      isAuthenticated = false;
+      userExists = false;
       currentUser = null;
       alertMessage = "";
       notifyListeners();
@@ -95,6 +96,7 @@ class AuthViewModel extends ChangeNotifier {
         FirebaseFirestore.instance.collection('users').doc(currentUser!.uid);
     docRef.get().then((document) {
       if (document.exists) {
+        userExists = true;
         currentUser = FirebaseAuth.instance.currentUser;
       } else {
         alertMessage = "User not found.";

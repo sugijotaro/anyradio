@@ -44,7 +44,7 @@ class MainPage extends StatelessWidget {
       builder: (context, authViewModel, child) {
         if (authViewModel.isFetchingUser) {
           return const Center(child: CircularProgressIndicator());
-        } else if (authViewModel.isFetchingUser) {
+        } else if (!authViewModel.userExists) {
           return OnboardingScreen(
             onStartPressed: () {
               authViewModel.createNewUser();
