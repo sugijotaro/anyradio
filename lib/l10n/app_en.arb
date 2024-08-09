@@ -1,5 +1,11 @@
 {
   "@@locale": "en",
   "anyRadio": "AnyRadio",
-  "getStarted" :"Get Started"
+  "getStarted": "Get Started",
+  "radioList": "Radio List",
+  "createRadio": "Create Radio",
+  "radioDetail": "Radio Detail",
+  "pickImages": "Pick Images",
+  "noImagesSelected": "No images selected.",
+  "upload": "Upload"
 }

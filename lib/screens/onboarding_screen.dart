@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OnboardingScreen extends StatelessWidget {
   final VoidCallback onStartPressed;
@@ -79,7 +80,7 @@ class OnboardingScreen extends StatelessWidget {
                 ),
               ),
               onPressed: onStartPressed,
-              child: const Text('Get Started'),
+              child: Text(L10n.of(context)!.getStarted),
             ),
           ),
         ],

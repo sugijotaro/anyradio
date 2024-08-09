@@ -1,5 +1,11 @@
 {
   "@@locale": "ja",
   "anyRadio": "AnyRadio",
-  "getStarted" :"今すぐ始める"
+  "getStarted": "今すぐ始める",
+  "radioList": "ラジオリスト",
+  "createRadio": "ラジオを作成",
+  "radioDetail": "ラジオの詳細",
+  "pickImages": "画像を選択",
+  "noImagesSelected": "画像が選択されていません。",
+  "upload": "アップロード"
 }
