@@ -7,12 +7,13 @@ class RadioListViewModel extends ChangeNotifier {
   List<custom_radio.Radio> radios = [];
 
   RadioListViewModel() {
-    _fetchRadios();
+    fetchRadios();
   }
 
-  void _fetchRadios() {
-    _radioService.getRadios().listen((radios) {
-      this.radios = radios;
+  Future<void> fetchRadios() async {
+    final radiosStream = _radioService.getRadios();
+    radiosStream.listen((radiosData) {
+      radios = radiosData;
       notifyListeners();
     });
   }

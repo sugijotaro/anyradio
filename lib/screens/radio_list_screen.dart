@@ -1,8 +1,8 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
 import 'radio_detail_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RadioListScreen extends StatelessWidget {
   @override
@@ -21,24 +21,29 @@ class RadioListScreen extends StatelessWidget {
               return Center(child: CircularProgressIndicator());
             }
 
-            return ListView.builder(
-              itemCount: viewModel.radios.length,
-              itemBuilder: (context, index) {
-                var radio = viewModel.radios[index];
-                return ListTile(
-                  title: Text(radio.title),
-                  subtitle: Text(radio.description),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            RadioDetailScreen(radioId: radio.id),
-                      ),
-                    );
-                  },
-                );
+            return RefreshIndicator(
+              onRefresh: () async {
+                await viewModel.fetchRadios();
               },
+              child: ListView.builder(
+                itemCount: viewModel.radios.length,
+                itemBuilder: (context, index) {
+                  var radio = viewModel.radios[index];
+                  return ListTile(
+                    title: Text(radio.title),
+                    subtitle: Text(radio.description),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              RadioDetailScreen(radioId: radio.id),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             );
           },
         ),
