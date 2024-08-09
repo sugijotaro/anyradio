@@ -29,8 +29,30 @@ class MyApp extends StatelessWidget {
         localizationsDelegates: L10n.localizationsDelegates,
         supportedLocales: L10n.supportedLocales,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
+          brightness: Brightness.dark,
+          scaffoldBackgroundColor: Colors.black,
+          colorScheme: ColorScheme.dark(
+            primary: Colors.deepPurple,
+            secondary: Colors.amber,
+            background: Colors.black,
+          ),
+          buttonTheme: ButtonThemeData(
+            buttonColor: Colors.deepPurple,
+            textTheme: ButtonTextTheme.primary,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.black,
+            titleTextStyle: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         home: const MainPage(),
       ),

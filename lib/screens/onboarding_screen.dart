@@ -22,13 +22,6 @@ class OnboardingScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l10n.anyRadio,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                   SizedBox(height: 20),
                   Text(
                     l10n.geminiDescription,
@@ -67,8 +60,7 @@ class OnboardingScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                backgroundColor: Colors.blueAccent,
-                foregroundColor: Colors.white,
+                backgroundColor: Colors.deepPurple,
                 elevation: 10,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
