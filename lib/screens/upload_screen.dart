@@ -18,7 +18,8 @@ class _UploadScreenState extends State<UploadScreen> {
 
     setState(() {
       if (pickedFiles != null) {
-        _imageFiles = pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
+        _imageFiles =
+            pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
       } else {
         print('No images selected.');
       }
@@ -43,14 +44,16 @@ class _UploadScreenState extends State<UploadScreen> {
                       ? Text('No images selected.')
                       : Expanded(
                           child: GridView.builder(
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3, // 3列のグリッド
                               crossAxisSpacing: 4.0,
                               mainAxisSpacing: 4.0,
                             ),
                             itemCount: _imageFiles.length,
                             itemBuilder: (context, index) {
-                              return Image.file(_imageFiles[index], fit: BoxFit.cover);
+                              return Image.file(_imageFiles[index],
+                                  fit: BoxFit.cover);
                             },
                           ),
                         ),

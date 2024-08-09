@@ -4,14 +4,12 @@ class User {
   String id;
   String username;
   String profileImageUrl;
-  String email;
   List<String> likedRadios;
 
   User({
     required this.id,
     required this.username,
     required this.profileImageUrl,
-    required this.email,
     required this.likedRadios,
   });
 
@@ -20,7 +18,6 @@ class User {
       id: doc.id,
       username: doc['username'],
       profileImageUrl: doc['profileImageUrl'],
-      email: doc['email'],
       likedRadios: List<String>.from(doc['likedRadios']),
     );
   }
@@ -29,7 +26,6 @@ class User {
     return {
       'username': username,
       'profileImageUrl': profileImageUrl,
-      'email': email,
       'likedRadios': likedRadios,
     };
   }

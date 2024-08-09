@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import '../models/user.dart' as custom_user;
 
 class AuthViewModel extends ChangeNotifier {
   static final AuthViewModel _instance = AuthViewModel._internal();
@@ -12,15 +13,14 @@ class AuthViewModel extends ChangeNotifier {
 
   bool userExists = false;
   bool isFetchingUser = true;
-  User? currentUser;
+  custom_user.User? currentUser;
   String alertMessage = "";
 
   void authenticateUser() {
     if (FirebaseAuth.instance.currentUser == null) {
       FirebaseAuth.instance.signInAnonymously().then((authResult) {
         if (authResult.user != null) {
-          currentUser = authResult.user;
-          checkUserExists(currentUser!.uid);
+          checkUserExists(authResult.user!.uid);
         } else {
           alertMessage = "Authentication failed: Could not retrieve user data.";
           notifyListeners();
@@ -30,8 +30,7 @@ class AuthViewModel extends ChangeNotifier {
         notifyListeners();
       });
     } else {
-      currentUser = FirebaseAuth.instance.currentUser;
-      checkUserExists(currentUser!.uid);
+      checkUserExists(FirebaseAuth.instance.currentUser!.uid);
     }
   }
 
@@ -39,8 +38,10 @@ class AuthViewModel extends ChangeNotifier {
     final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
     docRef.get().then((document) {
       if (document.exists) {
+        currentUser = custom_user.User.fromDocument(document);
         userExists = true;
-        fetchCurrentUser();
+        isFetchingUser = false;
+        notifyListeners();
       } else {
         userExists = false;
         isFetchingUser = false;
@@ -54,10 +55,16 @@ class AuthViewModel extends ChangeNotifier {
 
   void createNewUser() {
     final userId = FirebaseAuth.instance.currentUser!.uid;
+    final newUser = custom_user.User(
+      id: userId,
+      username: 'New User',
+      profileImageUrl: '',
+      likedRadios: [],
+    );
+
     final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
-    final newUser = {'id': userId, 'nickname': 'New User'};
-    docRef.set(newUser).then((_) {
-      currentUser = FirebaseAuth.instance.currentUser;
+    docRef.set(newUser.toMap()).then((_) {
+      currentUser = newUser;
       userExists = true;
       isFetchingUser = false;
       FirebaseAnalytics.instance
@@ -93,11 +100,10 @@ class AuthViewModel extends ChangeNotifier {
     }
 
     final docRef =
-        FirebaseFirestore.instance.collection('users').doc(currentUser!.uid);
+        FirebaseFirestore.instance.collection('users').doc(currentUser!.id);
     docRef.get().then((document) {
       if (document.exists) {
-        userExists = true;
-        currentUser = FirebaseAuth.instance.currentUser;
+        currentUser = custom_user.User.fromDocument(document);
       } else {
         alertMessage = "User not found.";
       }

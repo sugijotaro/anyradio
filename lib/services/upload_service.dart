@@ -26,7 +26,7 @@ class UploadService {
     return File(result.path);
   }
 
-  Future<List<String>> uploadFiles(List<File> files) async {
+  Future<List<String>> uploadFiles(List<File> files, String userId) async {
     List<String> downloadUrls = [];
     String uploadId = Uuid().v4();
 
@@ -43,14 +43,15 @@ class UploadService {
       downloadUrls.add(downloadUrl);
     }
 
-    await saveUploadData(uploadId, downloadUrls);
+    await saveUploadData(uploadId, downloadUrls, userId);
     return downloadUrls;
   }
 
-  Future<void> saveUploadData(String uploadId, List<String> downloadUrls) async {
+  Future<void> saveUploadData(
+      String uploadId, List<String> downloadUrls, String userId) async {
     await FirebaseFirestore.instance.collection('uploads').doc(uploadId).set({
       'id': uploadId,
-      'userId': 'dummyUserId',
+      'userId': userId,
       'fileUrls': downloadUrls,
       'uploadDate': Timestamp.now(),
       'status': 'processing',
