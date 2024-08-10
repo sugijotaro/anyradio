@@ -65,50 +65,59 @@ class _UploadScreenState extends State<UploadScreen> {
         ),
         body: Consumer<UploadViewModel>(
           builder: (context, viewModel, child) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    l10n.uploadInstructions,
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                  SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF222222),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.tipsForCreatingGreatRadio,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    if (_imageFiles.isEmpty) ...[
+                      Text(
+                        l10n.uploadInstructions,
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF222222),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        SizedBox(height: 10),
-                        Text(
-                          l10n.exampleTips,
-                          style: TextStyle(fontSize: 14, color: Colors.white),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.tipsForCreatingGreatRadio,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              l10n.exampleTips,
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.white),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                      SizedBox(height: 20),
+                    ],
+                    ElevatedButton(
+                      onPressed: viewModel.isUploading ? null : _pickImages,
+                      child: Text(
+                        _imageFiles.isEmpty
+                            ? l10n.pickImages
+                            : l10n.pickImagesAgain,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    l10n.privacyNotice,
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  SizedBox(height: 20),
-                  if (_imageFiles.isNotEmpty)
-                    Expanded(
-                      child: GridView.builder(
+                    SizedBox(height: 20),
+                    if (_imageFiles.isNotEmpty) ...[
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           crossAxisSpacing: 4.0,
@@ -120,41 +129,37 @@ class _UploadScreenState extends State<UploadScreen> {
                               fit: BoxFit.cover);
                         },
                       ),
-                    ),
-                  SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: viewModel.isUploading ? null : _pickImages,
-                    child: Text(
-                      _imageFiles.isEmpty
-                          ? l10n.pickImages
-                          : l10n.pickImagesAgain,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  if (_imageFiles.isNotEmpty)
-                    ElevatedButton(
-                      onPressed: viewModel.isUploading
-                          ? null
-                          : () async {
-                              if (_imageFiles.isNotEmpty) {
-                                try {
-                                  await viewModel.uploadFiles(
-                                      _imageFiles, l10n.localeName);
-                                  _showCompletionAlert(context);
-                                } catch (e) {
-                                  print("Upload failed: $e");
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: viewModel.isUploading
+                            ? null
+                            : () async {
+                                if (_imageFiles.isNotEmpty) {
+                                  try {
+                                    await viewModel.uploadFiles(
+                                        _imageFiles, l10n.localeName);
+                                    _showCompletionAlert(context);
+                                  } catch (e) {
+                                    print("Upload failed: $e");
+                                  }
                                 }
-                              }
-                            },
-                      child: Text(l10n.upload),
+                              },
+                        child: Text(l10n.upload),
+                      ),
+                    ],
+                    SizedBox(height: 20),
+                    Text(
+                      l10n.privacyNotice,
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
-                  if (viewModel.isUploading) ...[
-                    SizedBox(height: 20),
-                    CircularProgressIndicator(),
-                    SizedBox(height: 20),
-                    Text(l10n.doNotCloseApp),
+                    if (viewModel.isUploading) ...[
+                      SizedBox(height: 20),
+                      CircularProgressIndicator(),
+                      SizedBox(height: 20),
+                      Text(l10n.doNotCloseApp),
+                    ],
                   ],
-                ],
+                ),
               ),
             );
           },
