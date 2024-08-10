@@ -41,7 +41,10 @@ class RadioListScreen extends StatelessWidget {
                         var radio = viewModel.radios[index];
                         return GestureDetector(
                           onTap: () {
-                            viewModel.fetchRadioById(radio.id);
+                            if (viewModel.currentlyPlayingRadio?.id !=
+                                radio.id) {
+                              viewModel.fetchRadioById(radio.id);
+                            }
                             showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
@@ -61,53 +64,67 @@ class RadioListScreen extends StatelessWidget {
                 if (viewModel.currentlyPlayingRadio != null)
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: Container(
-                      color: Colors.black.withOpacity(0.9),
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ListTile(
-                            leading: Image.network(
-                              viewModel.currentlyPlayingRadio!.thumbnail,
-                              fit: BoxFit.cover,
-                            ),
-                            title: Text(
-                              viewModel.currentlyPlayingRadio!.title,
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                viewModel.audioState == AudioState.playing
-                                    ? Icons.pause
-                                    : Icons.play_arrow,
-                                color: Colors.white,
+                    child: GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.black,
+                          useSafeArea: true,
+                          builder: (context) => ChangeNotifierProvider.value(
+                            value: viewModel,
+                            child: RadioDetailScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        color: Colors.black.withOpacity(0.9),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: Image.network(
+                                viewModel.currentlyPlayingRadio!.thumbnail,
+                                fit: BoxFit.cover,
                               ),
-                              onPressed: () {
-                                if (viewModel.audioState ==
-                                    AudioState.playing) {
-                                  viewModel.pause();
-                                } else {
-                                  viewModel.play();
-                                }
-                              },
+                              title: Text(
+                                viewModel.currentlyPlayingRadio!.title,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(
+                                  viewModel.audioState == AudioState.playing
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  if (viewModel.audioState ==
+                                      AudioState.playing) {
+                                    viewModel.pause();
+                                  } else {
+                                    viewModel.play();
+                                  }
+                                },
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: ProgressBar(
-                              progress: viewModel.progressBarState.current,
-                              buffered: viewModel.progressBarState.buffered,
-                              total: viewModel.progressBarState.total,
-                              onSeek: (Duration position) {
-                                viewModel.seek(position);
-                              },
-                              timeLabelLocation: TimeLabelLocation.none,
-                              thumbRadius: 0.0,
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: ProgressBar(
+                                progress: viewModel.progressBarState.current,
+                                buffered: viewModel.progressBarState.buffered,
+                                total: viewModel.progressBarState.total,
+                                onSeek: (Duration position) {
+                                  viewModel.seek(position);
+                                },
+                                timeLabelLocation: TimeLabelLocation.none,
+                                thumbRadius: 0.0,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
