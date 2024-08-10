@@ -33,7 +33,6 @@ class RadioListScreen extends StatelessWidget {
                   bottom: 100.0,
                 ),
                 children: [
-                  // "新着" タイトル
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: Text(
@@ -44,7 +43,6 @@ class RadioListScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // // 最新のラジオを表示
                   if (viewModel.radios.isNotEmpty)
                     HorizontalCardTile(
                       radio: viewModel.radios.first,
