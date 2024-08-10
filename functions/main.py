@@ -10,18 +10,17 @@ import requests
 import google.auth
 import google.auth.transport.requests
 import base64
+from PIL import Image
+import io
 
-# Firebase Admin SDKの初期化
 cred = credentials.Certificate('anyradio-693a9-9571794b8f6e.json')
 app = initialize_app(cred)
 db = firestore.client()
 bucket = storage.bucket('anyradio-693a9.appspot.com')
 
-# Gemini APIの設定
 genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-# Google Cloudプロジェクトの設定
 PROJECT_ID = 'anyradio-693a9'
 ENDPOINT_URL = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/us-central1/publishers/google/models/imagegeneration:predict"
 
@@ -107,12 +106,21 @@ def generate_thumbnail_image(script, upload_id):
         response_json = response.json()
         img_base64 = response_json['predictions'][0]['bytesBase64Encoded']
         
-        # 生成された画像をGoogle Cloud Storageにアップロード
         img_data = base64.b64decode(img_base64)
-        blob = bucket.blob(f'thumbnails/{upload_id}.png')
-        blob.upload_from_string(img_data, content_type='image/png')
+        img = Image.open(io.BytesIO(img_data))
+        img = img.convert("RGB")
+        img = img.resize((1024, 1024))
+
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
+        img.save(temp_file, format="JPEG", quality=85)
+        temp_file_path = temp_file.name
+
+        blob = bucket.blob(f'audio/{upload_id}/thumbnail.jpg')
+        blob.upload_from_filename(temp_file_path)
         blob.make_public()
-        
+
+        os.remove(temp_file_path)
+
         return blob.public_url
     else:
         print(f"Error: {response.status_code}, {response.text}")
@@ -175,10 +183,8 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
 
         generated_script = call_gemini_api(prompt_script)
 
-        # サムネイル画像生成
         thumbnail_url = generate_thumbnail_image(generated_script, upload_id)
 
-        # スクリプトを使用してタイトルと説明文を生成
         if language == "ja":
             prompt_title = [f"以下のラジオスクリプトの内容に基づいて、適切なタイトルを考えてください。タイトルだけを簡潔に教えてください。\n\n{generated_script}"]
             prompt_description = [f"以下のラジオスクリプトの内容に基づいて、適切な説明文を考えてください。簡潔な説明文を教えてください。その文をラジオの説明文として使用します。\n\n{generated_script}"]
@@ -189,10 +195,8 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         generated_title = call_gemini_api(prompt_title)
         generated_description = call_gemini_api(prompt_description)
 
-        # 音声生成
         audio_url = generate_audio_from_text(generated_script, upload_id, language)
 
-        # Firestoreにデータを保存
         radio_data = {
             'title': generated_title,
             'description': generated_description,
