@@ -6,6 +6,9 @@ import os
 import urllib.request
 import mimetypes
 from google.cloud import texttospeech
+import requests
+import google.auth
+import google.auth.transport.requests
 
 # Firebase Admin SDKの初期化
 cred = credentials.Certificate('anyradio-693a9-9571794b8f6e.json')
@@ -16,6 +19,16 @@ bucket = storage.bucket('anyradio-693a9.appspot.com')
 # Gemini APIの設定
 genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
 model = genai.GenerativeModel('gemini-1.5-flash')
+
+# Google Cloudプロジェクトの設定
+PROJECT_ID = 'anyradio-693a9'
+ENDPOINT_URL = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/us-central1/publishers/google/models/imagegeneration:predict"
+
+def get_access_token():
+    credentials, project = google.auth.default()
+    auth_req = google.auth.transport.requests.Request()
+    credentials.refresh(auth_req)
+    return credentials.token
 
 def download_file(url, dst_path):
     try:
@@ -30,18 +43,15 @@ def download_file(url, dst_path):
 def upload_files(file_urls):
     uploaded_files = []
     for i, file_url in enumerate(file_urls):
-        # ファイルをダウンロードして一時的に保存する
         file_name = f"file{i+1}"
         print(f"File name: {file_name}")
 
         download_file(file_url, file_name)
 
-        # ファイルのMIMEタイプを取得
         mime_type, _ = mimetypes.guess_type(file_name)
         if mime_type is None:
-            mime_type = 'image/jpeg'  # デフォルトのMIMEタイプ
+            mime_type = 'image/jpeg'
 
-        # ファイルをGemini APIにアップロードする
         try:
             uploaded_file = genai.upload_file(path=file_name, display_name=file_name, mime_type=mime_type)
             uploaded_files.append(uploaded_file)
@@ -51,7 +61,6 @@ def upload_files(file_urls):
             print(f"Error uploading file to Gemini API: {e}")
             raise
 
-        # 一時ファイルを削除
         os.remove(file_name)
 
     return uploaded_files
@@ -65,14 +74,47 @@ def call_gemini_api(prompt):
         print(f"Error generating content with Gemini API: {e}")
         raise
 
+def generate_prompt_from_script(script, language='en'):
+    if language == 'ja':
+        prompt = f"このスクリプトに基づいて、ラジオ番組のサムネイル画像を生成してください: {script}"
+    else:
+        prompt = f"Generate a thumbnail image for the radio program based on this script: {script}"
+    return prompt
+
+def generate_thumbnail_image(script):
+    access_token = get_access_token()
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json; charset=utf-8'
+    }
+    
+    prompt = generate_prompt_from_script(script)
+    request_body = {
+        "instances": [
+            {
+                "prompt": prompt
+            }
+        ],
+        "parameters": {
+            "sampleCount": 1
+        }
+    }
+    
+    response = requests.post(ENDPOINT_URL, json=request_body, headers=headers)
+    
+    if response.status_code == 200:
+        response_json = response.json()
+        img_base64 = response_json['predictions'][0]['bytesBase64Encoded']
+        return img_base64
+    else:
+        print(f"Error: {response.status_code}, {response.text}")
+        return None
+
 def generate_audio_from_text(text, upload_id, language):
-    # TTSクライアントの初期化
     client = texttospeech.TextToSpeechClient()
 
-    # 音声合成の入力設定
     synthesis_input = texttospeech.SynthesisInput(text=text)
 
-    # 言語と音声の設定
     if language == "ja":
         voice = texttospeech.VoiceSelectionParams(
             language_code="ja-JP", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
@@ -82,23 +124,19 @@ def generate_audio_from_text(text, upload_id, language):
             language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
         )
 
-    # オーディオの設定
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
     )
 
-    # 音声合成のリクエスト
     response = client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
 
-    # 一時ファイルに音声を書き込む
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as out:
         out.write(response.audio_content)
         temp_file_path = out.name
         print(f'Audio content written to temporary file "{temp_file_path}"')
 
-    # Google Cloud Storageにアップロード
     blob = bucket.blob(f'audio/{upload_id}/{temp_file_path.split("/")[-1]}')
     blob.upload_from_filename(temp_file_path)
     blob.make_public()
@@ -106,6 +144,15 @@ def generate_audio_from_text(text, upload_id, language):
     os.remove(temp_file_path)
 
     return blob.public_url
+
+def save_thumbnail_to_firestore(upload_id, img_base64):
+    if img_base64:
+        db.collection('radios').document(upload_id).update({
+            'thumbnail': img_base64
+        })
+        print("Thumbnail image saved to Firestore.")
+    else:
+        print("Failed to generate thumbnail image.")
 
 @firestore_fn.on_document_created(document="uploads/{uploadId}")
 def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None]) -> None:
@@ -130,6 +177,12 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
 
         # Gemini APIを呼び出してスクリプトを生成
         generated_script = call_gemini_api(prompt_script)
+
+        # 生成されたスクリプトを基にサムネイル画像を生成
+        img_base64 = generate_thumbnail_image(generated_script)
+        
+        # サムネイル画像をFirestoreに保存
+        save_thumbnail_to_firestore(upload_id, img_base64)
 
         # スクリプトを使用してタイトルと説明文を生成
         if language == "ja":
