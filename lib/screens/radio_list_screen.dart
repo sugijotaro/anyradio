@@ -37,7 +37,12 @@ class RadioListScreen extends StatelessWidget {
                       itemCount: viewModel.radios.length,
                       itemBuilder: (context, index) {
                         var radio = viewModel.radios[index];
-                        return RadioGridItem(radio: radio);
+                        return GestureDetector(
+                          onTap: () {
+                            viewModel.fetchRadioById(radio.id);
+                          },
+                          child: RadioGridItem(radio: radio),
+                        );
                       },
                     ),
                   ),
@@ -58,11 +63,17 @@ class RadioListScreen extends StatelessWidget {
                         ),
                         trailing: IconButton(
                           icon: Icon(
-                            Icons.pause,
+                            viewModel.audioState == AudioState.playing
+                                ? Icons.pause
+                                : Icons.play_arrow,
                             color: Colors.white,
                           ),
                           onPressed: () {
-                            // Add functionality to pause the radio
+                            if (viewModel.audioState == AudioState.playing) {
+                              viewModel.pause();
+                            } else {
+                              viewModel.play();
+                            }
                           },
                         ),
                       ),

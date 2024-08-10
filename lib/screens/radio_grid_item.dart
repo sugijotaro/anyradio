@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../models/radio.dart' as custom_radio;
-import 'radio_detail_screen.dart';
 
 class RadioGridItem extends StatelessWidget {
   final custom_radio.Radio radio;
@@ -12,14 +11,6 @@ class RadioGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RadioDetailScreen(radioId: radio.id),
-          ),
-        );
-      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
