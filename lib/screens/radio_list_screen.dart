@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'radio_grid_item.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 class RadioListScreen extends StatelessWidget {
   @override
@@ -52,30 +53,50 @@ class RadioListScreen extends StatelessWidget {
                     child: Container(
                       color: Colors.black.withOpacity(0.9),
                       padding: const EdgeInsets.all(8.0),
-                      child: ListTile(
-                        leading: Image.network(
-                          viewModel.currentlyPlayingRadio!.thumbnail,
-                          fit: BoxFit.cover,
-                        ),
-                        title: Text(
-                          viewModel.currentlyPlayingRadio!.title,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            viewModel.audioState == AudioState.playing
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: Colors.white,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            leading: Image.network(
+                              viewModel.currentlyPlayingRadio!.thumbnail,
+                              fit: BoxFit.cover,
+                            ),
+                            title: Text(
+                              viewModel.currentlyPlayingRadio!.title,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(
+                                viewModel.audioState == AudioState.playing
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                if (viewModel.audioState ==
+                                    AudioState.playing) {
+                                  viewModel.pause();
+                                } else {
+                                  viewModel.play();
+                                }
+                              },
+                            ),
                           ),
-                          onPressed: () {
-                            if (viewModel.audioState == AudioState.playing) {
-                              viewModel.pause();
-                            } else {
-                              viewModel.play();
-                            }
-                          },
-                        ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: ProgressBar(
+                              progress: viewModel.progressBarState.current,
+                              buffered: viewModel.progressBarState.buffered,
+                              total: viewModel.progressBarState.total,
+                              onSeek: (Duration position) {
+                                viewModel.seek(position);
+                              },
+                              timeLabelLocation: TimeLabelLocation.none,
+                              thumbRadius: 0.0,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
