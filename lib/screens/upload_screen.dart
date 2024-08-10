@@ -74,32 +74,36 @@ class _UploadScreenState extends State<UploadScreen> {
                     l10n.uploadInstructions,
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    l10n.tipsForCreatingGreatRadio,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    l10n.exampleTips,
-                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF222222),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.tipsForCreatingGreatRadio,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          l10n.exampleTips,
+                          style: TextStyle(fontSize: 14, color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(height: 20),
                   Text(
                     l10n.privacyNotice,
-                    style: TextStyle(fontSize: 14, color: Colors.white),
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: viewModel.isUploading ? null : _pickImages,
-                    child: Text(
-                      _imageFiles.isEmpty
-                          ? l10n.pickImages
-                          : l10n.pickImagesAgain,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   SizedBox(height: 20),
                   if (_imageFiles.isNotEmpty)
@@ -117,6 +121,16 @@ class _UploadScreenState extends State<UploadScreen> {
                         },
                       ),
                     ),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: viewModel.isUploading ? null : _pickImages,
+                    child: Text(
+                      _imageFiles.isEmpty
+                          ? l10n.pickImages
+                          : l10n.pickImagesAgain,
+                    ),
+                  ),
+                  SizedBox(height: 10),
                   if (_imageFiles.isNotEmpty)
                     ElevatedButton(
                       onPressed: viewModel.isUploading
