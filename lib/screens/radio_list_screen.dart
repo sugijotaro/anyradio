@@ -46,6 +46,7 @@ class RadioListScreen extends StatelessWidget {
                                 context: context,
                                 isScrollControlled: true,
                                 backgroundColor: Colors.black,
+                                useSafeArea: true,
                                 builder: (context) =>
                                     ChangeNotifierProvider.value(
                                       value: viewModel,
