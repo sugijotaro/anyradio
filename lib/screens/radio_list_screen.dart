@@ -4,7 +4,7 @@ import '../viewmodels/radio_list_viewmodel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'radio_grid_item.dart';
 import 'radio_detail_screen.dart';
-import 'latest_radio_tile.dart'; // 新しいウィジェットをインポート
+import 'horizontal_card_tile.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 class RadioListScreen extends StatelessWidget {
@@ -46,7 +46,7 @@ class RadioListScreen extends StatelessWidget {
                   ),
                   // // 最新のラジオを表示
                   if (viewModel.radios.isNotEmpty)
-                    LatestRadioTile(
+                    HorizontalCardTile(
                       radio: viewModel.radios.first,
                       onTap: () {
                         if (viewModel.currentlyPlayingRadio?.id !=

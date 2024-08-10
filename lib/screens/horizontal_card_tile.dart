@@ -3,11 +3,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../models/radio.dart' as custom_radio;
 
-class LatestRadioTile extends StatelessWidget {
+class HorizontalCardTile extends StatelessWidget {
   final custom_radio.Radio radio;
   final VoidCallback onTap;
 
-  LatestRadioTile({required this.radio, required this.onTap});
+  HorizontalCardTile({required this.radio, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
