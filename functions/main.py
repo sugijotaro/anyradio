@@ -12,6 +12,7 @@ import google.auth.transport.requests
 import base64
 from PIL import Image
 import io
+import time
 
 cred = credentials.Certificate('anyradio-693a9-9571794b8f6e.json')
 app = initialize_app(cred)
@@ -114,6 +115,20 @@ def generate_thumbnail_prompt(script):
               "Please understand the content of the script, think of a suitable thumbnail image "
               "for this radio show, and come up with a prompt to send to the image generation API.")
     return call_gemini_api(f"{prompt}\n\n{script}")
+
+def generate_thumbnail_image_with_retry(script, upload_id, retries=3, delay=5):
+    for attempt in range(retries):
+        print(f"Attempt {attempt + 1} of {retries} to generate thumbnail...")
+        thumbnail_url = generate_thumbnail_image(script, upload_id)
+        
+        if thumbnail_url:
+            return thumbnail_url
+        
+        print(f"Retry {attempt + 1}/{retries} failed. Retrying in {delay} seconds...")
+        time.sleep(delay)
+    
+    print("Failed to generate thumbnail after multiple attempts.")
+    return None
 
 def generate_thumbnail_image(script, upload_id):
     access_token = get_access_token()
@@ -237,7 +252,10 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         prompt_script = [PROMPTS[language]['script']] + uploaded_files
         generated_script = call_gemini_api(prompt_script)
 
-        thumbnail_url = generate_thumbnail_image(generated_script, upload_id)
+        thumbnail_url = generate_thumbnail_image_with_retry(generated_script, upload_id, retries=3, delay=5)
+
+        if thumbnail_url is None:
+            raise Exception("Failed to generate thumbnail after multiple attempts.")
 
         prompt_title = generate_prompt('title', generated_script, language)
         prompt_description = generate_prompt('description', generated_script, language)
