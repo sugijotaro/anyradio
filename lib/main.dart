@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'services/service_locator.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
+import 'viewmodels/radio_list_viewmodel.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +23,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthViewModel(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => RadioListViewModel()),
+      ],
       child: MaterialApp(
         title: 'AnyRadio',
         localizationsDelegates: L10n.localizationsDelegates,
