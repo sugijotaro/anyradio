@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:rxdart/rxdart.dart';
 import 'package:flutter/material.dart';
 import 'package:audio_service/audio_service.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../models/radio.dart' as custom_radio;
 import '../services/radio_service.dart';
@@ -32,6 +32,8 @@ class RadioDetailViewModel extends ChangeNotifier {
   custom_radio.Radio? radio;
   final AudioServiceHandler _audioHandler = getIt<AudioServiceHandler>();
 
+  static custom_radio.Radio? currentlyPlayingRadio;
+
   ProgressBarState progressBarState = ProgressBarState(
     current: Duration.zero,
     buffered: Duration.zero,
@@ -44,6 +46,7 @@ class RadioDetailViewModel extends ChangeNotifier {
   Future<void> fetchRadioById(String id) async {
     radio = await _radioService.getRadioById(id);
     if (radio != null) {
+      currentlyPlayingRadio = radio;
       incrementPlayCount();
       await cacheAndPlayAudio(radio!.audioUrl);
     }
@@ -58,7 +61,6 @@ class RadioDetailViewModel extends ChangeNotifier {
 
   Future<void> cacheAndPlayAudio(String url) async {
     final file = await DefaultCacheManager().getSingleFile(url);
-
     final filePath = 'file://${file.path}';
 
     final mediaItem = MediaItem(

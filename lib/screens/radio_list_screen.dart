@@ -17,28 +17,59 @@ class RadioListScreen extends StatelessWidget {
         ),
         body: Consumer<RadioListViewModel>(
           builder: (context, viewModel, child) {
-            if (viewModel.radios.isEmpty) {
-              return Center(child: CircularProgressIndicator());
-            }
-
-            return RefreshIndicator(
-                onRefresh: () async {
-                  await viewModel.fetchRadios();
-                },
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 8.0,
-                    childAspectRatio: 0.75,
+            return Stack(
+              children: [
+                if (viewModel.radios.isEmpty)
+                  Center(child: CircularProgressIndicator())
+                else
+                  RefreshIndicator(
+                    onRefresh: () async {
+                      await viewModel.fetchRadios();
+                    },
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8.0,
+                        mainAxisSpacing: 8.0,
+                        childAspectRatio: 0.75,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      itemCount: viewModel.radios.length,
+                      itemBuilder: (context, index) {
+                        var radio = viewModel.radios[index];
+                        return RadioGridItem(radio: radio);
+                      },
+                    ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  itemCount: viewModel.radios.length,
-                  itemBuilder: (context, index) {
-                    var radio = viewModel.radios[index];
-                    return RadioGridItem(radio: radio);
-                  },
-                ));
+                if (viewModel.currentlyPlayingRadio != null)
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      color: Colors.black.withOpacity(0.9),
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListTile(
+                        leading: Image.network(
+                          viewModel.currentlyPlayingRadio!.thumbnail,
+                          fit: BoxFit.cover,
+                        ),
+                        title: Text(
+                          viewModel.currentlyPlayingRadio!.title,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(
+                            Icons.pause,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            // Add functionality to pause the radio
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
           },
         ),
       ),
