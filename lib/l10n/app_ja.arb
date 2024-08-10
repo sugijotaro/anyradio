@@ -22,5 +22,10 @@
   "doNotCloseApp": "コンテンツをアップロード中です。アプリを閉じないでください。",
   "uploadComplete": "アップロード完了",
   "uploadCompleteMessage": "コンテンツが正常にアップロードされました。",
-  "ok": "OK"
+  "ok": "OK",
+  "deleteConfirmationTitle": "削除の確認",
+  "deleteConfirmationMessage": "このラジオを削除しますか？",
+  "cancel": "キャンセル",
+  "delete": "削除",
+  "radioDeleted": "ラジオが削除されました。"
 }

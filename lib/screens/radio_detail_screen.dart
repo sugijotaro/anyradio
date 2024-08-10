@@ -5,6 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
 import '../viewmodels/auth_viewmodel.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RadioDetailScreen extends StatelessWidget {
   @override
@@ -17,6 +18,7 @@ class RadioDetailScreen extends StatelessWidget {
 
         final radio = radioViewModel.currentlyPlayingRadio!;
         final currentUser = authViewModel.currentUser;
+        final l10n = L10n.of(context);
 
         return Scaffold(
           backgroundColor: Colors.transparent,
@@ -41,14 +43,14 @@ class RadioDetailScreen extends StatelessWidget {
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'delete') {
-                      _confirmDelete(context, radioViewModel, radio.id);
+                      _confirmDelete(context, radioViewModel, radio.id, l10n);
                     }
                   },
                   itemBuilder: (BuildContext context) {
                     return [
                       PopupMenuItem(
                         value: 'delete',
-                        child: Text('削除'),
+                        child: Text(l10n.delete),
                       ),
                     ];
                   },
@@ -151,26 +153,32 @@ class RadioDetailScreen extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(
-      BuildContext context, RadioListViewModel viewModel, String radioId) {
+  void _confirmDelete(BuildContext context, RadioListViewModel viewModel,
+      String radioId, L10n l10n) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('削除の確認'),
-          content: Text('このラジオを削除しますか？'),
+          title: Text(l10n.deleteConfirmationTitle),
+          content: Text(l10n.deleteConfirmationMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('キャンセル'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () {
                 viewModel.deleteRadio(radioId);
                 Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Close the detail screen as well
+                Navigator.of(context).pop();
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.radioDeleted),
+                  ),
+                );
               },
-              child: Text('削除'),
+              child: Text(l10n.delete),
             ),
           ],
         );
