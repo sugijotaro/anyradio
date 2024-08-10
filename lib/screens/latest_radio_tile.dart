@@ -14,19 +14,18 @@ class LatestRadioTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
           color: const Color(0xFF222222),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
-            // ここで画像の幅と高さを明示的に設定
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: Container(
-                width: 100, // 明示的な幅
-                height: 100, // 明示的な高さ
+                width: 100,
+                height: 100,
                 child: CachedNetworkImage(
                   cacheManager: CacheManager(
                     Config(
@@ -48,15 +47,17 @@ class LatestRadioTile extends StatelessWidget {
                   Text(
                     radio.title,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
                   Text(
                     radio.description,
-                    maxLines: 2,
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
                     overflow: TextOverflow.ellipsis,
+                    maxLines: 3,
                   ),
                 ],
               ),
