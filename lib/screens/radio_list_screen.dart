@@ -32,7 +32,11 @@ class RadioListScreen extends StatelessWidget {
                   mainAxisSpacing: 8.0,
                   childAspectRatio: 0.75,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.only(
+                  left: 8.0,
+                  right: 8.0,
+                  bottom: 100.0,
+                ),
                 itemCount: viewModel.radios.length,
                 itemBuilder: (context, index) {
                   var radio = viewModel.radios[index];
@@ -42,11 +46,12 @@ class RadioListScreen extends StatelessWidget {
                         viewModel.fetchRadioById(radio.id);
                       }
                       showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.black,
-                          useSafeArea: true,
-                          builder: (context) => RadioDetailScreen());
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.black,
+                        useSafeArea: true,
+                        builder: (context) => RadioDetailScreen(),
+                      );
                     },
                     child: RadioGridItem(radio: radio),
                   );
