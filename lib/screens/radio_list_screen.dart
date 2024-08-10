@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'radio_grid_item.dart';
+import 'radio_detail_screen.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 class RadioListScreen extends StatelessWidget {
@@ -41,6 +42,16 @@ class RadioListScreen extends StatelessWidget {
                         return GestureDetector(
                           onTap: () {
                             viewModel.fetchRadioById(radio.id);
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) =>
+                                  ChangeNotifierProvider.value(
+                                value: viewModel,
+                                child: RadioDetailScreen(),
+                              ),
+                            );
                           },
                           child: RadioGridItem(radio: radio),
                         );

@@ -1,145 +1,113 @@
-// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-// import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-// import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
-// import '../viewmodels/radio_detail_viewmodel.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../viewmodels/radio_list_viewmodel.dart';
 
-// class RadioDetailScreen extends StatelessWidget {
-//   final String radioId;
+class RadioDetailScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<RadioListViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.currentlyPlayingRadio == null) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-//   RadioDetailScreen({required this.radioId});
+        final radio = viewModel.currentlyPlayingRadio!;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final l10n = L10n.of(context);
-
-//     return ChangeNotifierProvider(
-//       create: (_) => RadioDetailViewModel()..fetchRadioById(radioId),
-//       child: Scaffold(
-//         appBar: AppBar(
-//           title: Text(l10n.radioDetail),
-//         ),
-//         body: Consumer<RadioDetailViewModel>(
-//           builder: (context, viewModel, child) {
-//             if (viewModel.radio == null) {
-//               return Center(child: CircularProgressIndicator());
-//             }
-
-//             return SingleChildScrollView(
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Padding(
-//                     padding: const EdgeInsets.all(16.0),
-//                     child: ClipRRect(
-//                       borderRadius: BorderRadius.circular(16.0),
-//                       child: AspectRatio(
-//                         aspectRatio: 1,
-//                         child: CachedNetworkImage(
-//                           cacheManager: CacheManager(
-//                             Config(
-//                               'customCacheKey',
-//                               stalePeriod: const Duration(days: 7),
-//                               maxNrOfCacheObjects: 100,
-//                             ),
-//                           ),
-//                           imageUrl: viewModel.radio!.thumbnail,
-//                           fit: BoxFit.cover,
-//                           placeholder: (context, url) => Container(
-//                             color: Colors.grey,
-//                           ),
-//                           errorWidget: (context, url, error) => Container(
-//                             color: Colors.grey,
-//                             child: Icon(
-//                               Icons.error,
-//                               color: Colors.red,
-//                               size: 48.0,
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                   Padding(
-//                     padding: const EdgeInsets.all(16.0),
-//                     child: Text(
-//                       viewModel.radio!.title,
-//                       style: TextStyle(
-//                         fontSize: 24,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                       maxLines: 1,
-//                       overflow: TextOverflow.ellipsis,
-//                     ),
-//                   ),
-//                   Padding(
-//                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-//                     child: Consumer<RadioDetailViewModel>(
-//                       builder: (context, state, child) {
-//                         return ProgressBar(
-//                           progress: state.progressBarState.current,
-//                           buffered: state.progressBarState.buffered,
-//                           total: state.progressBarState.total,
-//                           onSeek: (Duration position) {
-//                             state.seek(position);
-//                           },
-//                         );
-//                       },
-//                     ),
-//                   ),
-//                   Padding(
-//                     padding: const EdgeInsets.all(16.0),
-//                     child: Center(
-//                       child: Consumer<RadioDetailViewModel>(
-//                         builder: (context, state, child) {
-//                           switch (state.audioState) {
-//                             case AudioState.loading:
-//                               return Padding(
-//                                 padding: const EdgeInsets.all(8.0),
-//                                 child: SizedBox(
-//                                   height: 32,
-//                                   width: 32,
-//                                   child: CircularProgressIndicator(),
-//                                 ),
-//                               );
-//                             case AudioState.ready:
-//                             case AudioState.paused:
-//                               return IconButton(
-//                                 onPressed: () =>
-//                                     context.read<RadioDetailViewModel>().play(),
-//                                 icon: Icon(Icons.play_arrow),
-//                                 iconSize: 48.0,
-//                               );
-//                             case AudioState.playing:
-//                               return IconButton(
-//                                 onPressed: () => context
-//                                     .read<RadioDetailViewModel>()
-//                                     .pause(),
-//                                 icon: Icon(Icons.pause),
-//                                 iconSize: 48.0,
-//                               );
-//                             default:
-//                               return SizedBox(
-//                                 height: 48,
-//                                 width: 48,
-//                               );
-//                           }
-//                         },
-//                       ),
-//                     ),
-//                   ),
-//                   Padding(
-//                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-//                     child: Text(viewModel.radio!.description),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text(radio.title),
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16.0),
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: CachedNetworkImage(
+                        cacheManager: CacheManager(
+                          Config(
+                            'customCacheKey',
+                            stalePeriod: const Duration(days: 7),
+                            maxNrOfCacheObjects: 100,
+                          ),
+                        ),
+                        imageUrl: radio.thumbnail,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey,
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey,
+                          child: Icon(
+                            Icons.error,
+                            color: Colors.red,
+                            size: 48.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    radio.title,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: ProgressBar(
+                    progress: viewModel.progressBarState.current,
+                    buffered: viewModel.progressBarState.buffered,
+                    total: viewModel.progressBarState.total,
+                    onSeek: (Duration position) {
+                      viewModel.seek(position);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: IconButton(
+                      onPressed: () {
+                        if (viewModel.audioState == AudioState.playing) {
+                          viewModel.pause();
+                        } else {
+                          viewModel.play();
+                        }
+                      },
+                      icon: Icon(
+                        viewModel.audioState == AudioState.playing
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                        size: 48.0,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(radio.description),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
