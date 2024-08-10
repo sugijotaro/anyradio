@@ -30,6 +30,7 @@ class RadioDetailScreen extends StatelessWidget {
                 icon: Icon(
                   Icons.expand_more,
                   color: Colors.white,
+                  size: 32,
                 ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
