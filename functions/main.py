@@ -37,6 +37,24 @@ PROMPTS = {
     }
 }
 
+GENRES = {
+    1: 'comedy',
+    2: 'news',
+    3: 'education',
+    4: 'parenting',
+    5: 'mentalHealth',
+    6: 'romance',
+    7: 'mystery',
+    8: 'business',
+    9: 'entertainment',
+    10: 'history',
+    11: 'health',
+    12: 'science',
+    13: 'sports',
+    14: 'fiction',
+    15: 'religion'
+}
+
 def get_access_token():
     credentials, project = google.auth.default()
     auth_req = google.auth.transport.requests.Request()
@@ -173,6 +191,26 @@ def generate_audio_from_text(text, upload_id, language):
 
     return blob.public_url
 
+def generate_genre_prompt(script):
+    genre_prompt = (
+        "Based on the contents of the following radio script, please choose the most appropriate genre by selecting the corresponding number: \n"
+        "1. Comedy\n2. News\n3. Education\n4. Parenting\n5. Mental Health\n6. Romance\n7. Mystery\n8. Business\n"
+        "9. Entertainment\n10. History\n11. Health\n12. Science\n13. Sports\n14. Fiction\n15. Religion\n\n"
+        "Please provide only the number corresponding to the genre.\n\n{script}"
+    )
+    response = call_gemini_api(genre_prompt.format(script=script)).strip()
+    
+    try:
+        genre_number = int(response)
+        if genre_number in GENRES:
+            return GENRES[genre_number]
+        else:
+            print(f"Invalid genre number: {genre_number}")
+            return 'entertainment'
+    except ValueError:
+        print(f"Invalid response: {response}")
+        return 'entertainment'
+
 @firestore_fn.on_document_created(document="uploads/{uploadId}")
 def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None]) -> None:
     doc = event.data
@@ -199,6 +237,8 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         generated_title = call_gemini_api(prompt_title)
         generated_description = call_gemini_api(prompt_description)
 
+        selected_genre = generate_genre_prompt(generated_script)
+
         audio_url = generate_audio_from_text(generated_script, upload_id, language)
 
         radio_data = {
@@ -211,7 +251,7 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
             'uploadDate': firestore.SERVER_TIMESTAMP,
             'comments': [],
             'likes': 0,
-            'genre': 'Generated',
+            'genre': selected_genre,
             'playCount': 0,
             'language': language,
             'lastPlayed': None,

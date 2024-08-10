@@ -1,5 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum RadioGenre {
+  comedy,
+  news,
+  education,
+  parenting,
+  mentalHealth,
+  romance,
+  mystery,
+  business,
+  entertainment,
+  history,
+  health,
+  science,
+  sports,
+  fiction,
+  religion,
+}
+
 class Radio {
   String id;
   String title;
@@ -11,7 +29,7 @@ class Radio {
   DateTime uploadDate;
   List<Comment> comments;
   int likes;
-  String genre;
+  RadioGenre genre;
   int playCount;
   String language;
   DateTime? lastPlayed;
@@ -48,7 +66,7 @@ class Radio {
       comments:
           (doc['comments'] as List).map((c) => Comment.fromMap(c)).toList(),
       likes: doc['likes'],
-      genre: doc['genre'],
+      genre: RadioGenre.values.byName(doc['genre']),
       playCount: doc['playCount'],
       language: doc['language'],
       lastPlayed: (doc['lastPlayed'] as Timestamp?)?.toDate(),
@@ -67,7 +85,7 @@ class Radio {
       'uploadDate': uploadDate,
       'comments': comments.map((c) => c.toMap()).toList(),
       'likes': likes,
-      'genre': genre,
+      'genre': genre.name,
       'playCount': playCount,
       'language': language,
       'lastPlayed': lastPlayed,
