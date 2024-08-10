@@ -4,39 +4,59 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
+import '../viewmodels/auth_viewmodel.dart';
 
 class RadioDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<RadioListViewModel>(
-      builder: (context, viewModel, child) {
-        if (viewModel.currentlyPlayingRadio == null) {
+    return Consumer2<RadioListViewModel, AuthViewModel>(
+      builder: (context, radioViewModel, authViewModel, child) {
+        if (radioViewModel.currentlyPlayingRadio == null) {
           return Center(child: CircularProgressIndicator());
         }
 
-        final radio = viewModel.currentlyPlayingRadio!;
+        final radio = radioViewModel.currentlyPlayingRadio!;
+        final currentUser = authViewModel.currentUser;
 
         return Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              title: Text(
-                radio.title,
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              leading: IconButton(
-                icon: Icon(
-                  Icons.expand_more,
-                  color: Colors.white,
-                  size: 32,
-                ),
-                onPressed: () => Navigator.of(context).pop(),
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            title: Text(
+              radio.title,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 16,
               ),
             ),
-            body: SafeArea(
-                child: Container(
+            leading: IconButton(
+              icon: Icon(
+                Icons.expand_more,
+                color: Colors.white,
+                size: 32,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            actions: [
+              if (currentUser != null && currentUser.id == radio.uploaderId)
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'delete') {
+                      _confirmDelete(context, radioViewModel, radio.id);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text('削除'),
+                      ),
+                    ];
+                  },
+                ),
+            ],
+          ),
+          body: SafeArea(
+            child: Container(
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
               child: SingleChildScrollView(
                 child: Column(
@@ -88,11 +108,11 @@ class RadioDetailScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: ProgressBar(
-                        progress: viewModel.progressBarState.current,
-                        buffered: viewModel.progressBarState.buffered,
-                        total: viewModel.progressBarState.total,
+                        progress: radioViewModel.progressBarState.current,
+                        buffered: radioViewModel.progressBarState.buffered,
+                        total: radioViewModel.progressBarState.total,
                         onSeek: (Duration position) {
-                          viewModel.seek(position);
+                          radioViewModel.seek(position);
                         },
                       ),
                     ),
@@ -101,14 +121,15 @@ class RadioDetailScreen extends StatelessWidget {
                       child: Center(
                         child: IconButton(
                           onPressed: () {
-                            if (viewModel.audioState == AudioState.playing) {
-                              viewModel.pause();
+                            if (radioViewModel.audioState ==
+                                AudioState.playing) {
+                              radioViewModel.pause();
                             } else {
-                              viewModel.play();
+                              radioViewModel.play();
                             }
                           },
                           icon: Icon(
-                            viewModel.audioState == AudioState.playing
+                            radioViewModel.audioState == AudioState.playing
                                 ? Icons.pause
                                 : Icons.play_arrow,
                             size: 48.0,
@@ -123,7 +144,36 @@ class RadioDetailScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            )));
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmDelete(
+      BuildContext context, RadioListViewModel viewModel, String radioId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('削除の確認'),
+          content: Text('このラジオを削除しますか？'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () {
+                viewModel.deleteRadio(radioId);
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close the detail screen as well
+              },
+              child: Text('削除'),
+            ),
+          ],
+        );
       },
     );
   }

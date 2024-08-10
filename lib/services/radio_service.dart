@@ -30,4 +30,9 @@ class RadioService {
       'lastPlayed': FieldValue.serverTimestamp(),
     });
   }
+
+  Future<void> deleteRadio(String radioId) async {
+    final docRef = _radiosCollection.doc(radioId);
+    await docRef.delete();
+  }
 }

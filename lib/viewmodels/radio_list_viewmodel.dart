@@ -67,6 +67,15 @@ class RadioListViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> deleteRadio(String radioId) async {
+    await _radioService.deleteRadio(radioId);
+    radios.removeWhere((radio) => radio.id == radioId);
+    if (currentlyPlayingRadio?.id == radioId) {
+      currentlyPlayingRadio = null;
+    }
+    notifyListeners();
+  }
+
   void incrementPlayCount() {
     if (currentlyPlayingRadio != null) {
       _radioService.incrementPlayCount(currentlyPlayingRadio!.id);
