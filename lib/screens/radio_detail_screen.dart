@@ -2,6 +2,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../viewmodels/radio_detail_viewmodel.dart';
 
 class RadioDetailScreen extends StatelessWidget {
@@ -35,27 +37,27 @@ class RadioDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16.0),
                       child: AspectRatio(
                         aspectRatio: 1,
-                        child: Image.network(
-                          viewModel.radio!.thumbnail,
+                        child: CachedNetworkImage(
+                          cacheManager: CacheManager(
+                            Config(
+                              'customCacheKey',
+                              stalePeriod: const Duration(days: 7),
+                              maxNrOfCacheObjects: 100,
+                            ),
+                          ),
+                          imageUrl: viewModel.radio!.thumbnail,
                           fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(
-                              color: Colors.grey,
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey,
-                              child: Icon(
-                                Icons.error,
-                                color: Colors.red,
-                                size: 48.0,
-                              ),
-                            );
-                          },
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey,
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey,
+                            child: Icon(
+                              Icons.error,
+                              color: Colors.red,
+                              size: 48.0,
+                            ),
+                          ),
                         ),
                       ),
                     ),

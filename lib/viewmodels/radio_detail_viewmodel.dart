@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'package:rxdart/rxdart.dart';
 import 'package:flutter/material.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import '../models/radio.dart' as custom_radio;
 import '../services/radio_service.dart';
 import '../services/service_locator.dart';
@@ -44,7 +45,7 @@ class RadioDetailViewModel extends ChangeNotifier {
     radio = await _radioService.getRadioById(id);
     if (radio != null) {
       incrementPlayCount();
-      init();
+      await cacheAndPlayAudio(radio!.audioUrl);
     }
     notifyListeners();
   }
@@ -55,14 +56,19 @@ class RadioDetailViewModel extends ChangeNotifier {
     }
   }
 
-  void init() {
+  Future<void> cacheAndPlayAudio(String url) async {
+    final file = await DefaultCacheManager().getSingleFile(url);
+
+    final filePath = 'file://${file.path}';
+
     final mediaItem = MediaItem(
-      id: radio!.audioUrl,
+      id: filePath,
       album: "AnyRadio",
       title: radio!.title,
       artist: radio!.uploaderId,
       artUri: Uri.parse(radio!.thumbnail),
     );
+
     _audioHandler.initPlayer(mediaItem);
     _listenToPlaybackState();
     _listenForProgressBarState();
@@ -75,13 +81,19 @@ class RadioDetailViewModel extends ChangeNotifier {
   void seek(Duration position) => _audioHandler.seek(position);
 
   void setAudioState(AudioState state) {
-    audioState = state;
-    notifyListeners();
+    if (audioState != state) {
+      audioState = state;
+      notifyListeners();
+    }
   }
 
   void setProgressBarState(ProgressBarState state) {
-    progressBarState = state;
-    notifyListeners();
+    if (progressBarState.current != state.current ||
+        progressBarState.buffered != state.buffered ||
+        progressBarState.total != state.total) {
+      progressBarState = state;
+      notifyListeners();
+    }
   }
 
   void _listenToPlaybackState() {
