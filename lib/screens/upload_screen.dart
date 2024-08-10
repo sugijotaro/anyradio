@@ -105,16 +105,18 @@ class _UploadScreenState extends State<UploadScreen> {
                       ),
                       SizedBox(height: 20),
                     ],
-                    ElevatedButton(
-                      onPressed: viewModel.isUploading ? null : _pickImages,
-                      child: Text(
-                        _imageFiles.isEmpty
-                            ? l10n.pickImages
-                            : l10n.pickImagesAgain,
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: viewModel.isUploading ? null : _pickImages,
+                        child: Text(
+                          _imageFiles.isEmpty
+                              ? l10n.pickImages
+                              : l10n.pickImagesAgain,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 20),
                     if (_imageFiles.isNotEmpty) ...[
+                      SizedBox(height: 20),
                       GridView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
@@ -130,21 +132,23 @@ class _UploadScreenState extends State<UploadScreen> {
                         },
                       ),
                       SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: viewModel.isUploading
-                            ? null
-                            : () async {
-                                if (_imageFiles.isNotEmpty) {
-                                  try {
-                                    await viewModel.uploadFiles(
-                                        _imageFiles, l10n.localeName);
-                                    _showCompletionAlert(context);
-                                  } catch (e) {
-                                    print("Upload failed: $e");
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: viewModel.isUploading
+                              ? null
+                              : () async {
+                                  if (_imageFiles.isNotEmpty) {
+                                    try {
+                                      await viewModel.uploadFiles(
+                                          _imageFiles, l10n.localeName);
+                                      _showCompletionAlert(context);
+                                    } catch (e) {
+                                      print("Upload failed: $e");
+                                    }
                                   }
-                                }
-                              },
-                        child: Text(l10n.upload),
+                                },
+                          child: Text(l10n.upload),
+                        ),
                       ),
                     ],
                     SizedBox(height: 20),
