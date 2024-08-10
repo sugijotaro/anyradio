@@ -26,14 +26,14 @@ ENDPOINT_URL = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJ
 
 PROMPTS = {
     'en': {
-        'script': "I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a lively, engaging script to read out loud. The script should feel like you are telling a story to the listeners, evoking emotions and creating vivid imagery in their minds. Avoid including any sound effects or stage directions, and do not use any headings or labels. Just provide the plain text that can be read aloud. in English. Please do not hallucinate.",
-        'title': "Based on the contents of the radio script below, please think of an appropriate title in English. Please provide only the title without any markdown-like symbols like #, ##, ###, or **. Please, do not hallucinate.\n\n{script}",
-        'description': "Think of a suitable description based on the contents of the radio script below in English. Please give us a brief description without any markdown-like symbols like #, ##, ###, or **. Please, do not hallucinate. We will use that sentence as the radio description.\n\n{script}"
+        'script': "I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a lively, engaging script to read out loud. The script should feel like you are telling a story to the listeners, evoking emotions and creating vivid imagery in their minds. Avoid including any sound effects or stage directions, and do not use any headings or labels. Just provide the plain text that can be read aloud. in English.",
+        'title': "Based on the contents of the radio script below, please think of an appropriate title in English. Please provide only the title without any markdown-like symbols like #, ##, ###, or **.\n\n{script}",
+        'description': "Think of a suitable description based on the contents of the radio script below in English. Please give us a brief description without any markdown-like symbols like #, ##, ###, or **. We will use that sentence as the radio description.\n\n{script}"
     },
     'ja': {
-        'script': "これらの画像や動画ファイルをもとに、ラジオ番組を作成したいと思います。ラジオのナレーターとして、自分が話しているような気分になって、リスナーに感情を呼び起こし、心に鮮やかなイメージを作り出すような、生き生きとした魅力的なスクリプトを書いてください。効果音や演出指示は含まず、見出しやラベルも使用せず、朗読できるようなプレーンテキストだけを提供してください。日本語で記述してください。ハルシネーションを起こさないようにしてください。",
-        'title': "以下のラジオスクリプトの内容に基づいて、日本語で適切なタイトルを考えてください。タイトルだけをMarkdown形式の記号なしで簡潔に教えてください。ハルシネーションを起こさないようにしてください。\n\n{script}",
-        'description': "以下のラジオスクリプトの内容に基づいて、日本語で適切な説明文を考えてください。Markdown形式の記号なしで簡潔な説明文を教えてください。ハルシネーションを起こさないようにしてください。その文をラジオの説明文として使用します。\n\n{script}"
+        'script': "これらの画像や動画ファイルをもとに、ラジオ番組を作成したいと思います。ラジオのナレーターとして、自分が話しているような気分になって、リスナーに感情を呼び起こし、心に鮮やかなイメージを作り出すような、生き生きとした魅力的なスクリプトを書いてください。効果音や演出指示は含まず、見出しやラベルも使用せず、朗読できるようなプレーンテキストだけを提供してください。日本語で記述してください。",
+        'title': "以下のラジオスクリプトの内容に基づいて、日本語で適切なタイトルを考えてください。タイトルだけをMarkdown形式の記号なしで簡潔に教えてください。\n\n{script}",
+        'description': "以下のラジオスクリプトの内容に基づいて、日本語で適切な説明文を考えてください。Markdown形式の記号なしで簡潔な説明文を教えてください。その文をラジオの説明文として使用します。\n\n{script}"
     }
 }
 
