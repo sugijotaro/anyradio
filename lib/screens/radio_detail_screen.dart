@@ -33,10 +33,30 @@ class RadioDetailScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16.0),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16.0),
-                      child: Image.network(
-                        viewModel.radio!.thumbnail,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Image.network(
+                          viewModel.radio!.thumbnail,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              color: Colors.grey,
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey,
+                              child: Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 48.0,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
