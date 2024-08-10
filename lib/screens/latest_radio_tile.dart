@@ -14,7 +14,7 @@ class LatestRadioTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12.0),
+        height: 120,
         decoration: BoxDecoration(
           color: const Color(0xFF222222),
           borderRadius: BorderRadius.circular(10),
@@ -22,44 +22,54 @@ class LatestRadioTile extends StatelessWidget {
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Container(
-                width: 100,
-                height: 100,
-                child: CachedNetworkImage(
-                  cacheManager: CacheManager(
-                    Config(
-                      'customCacheKey',
-                      stalePeriod: const Duration(days: 7),
-                      maxNrOfCacheObjects: 100,
-                    ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8.0),
+                bottomLeft: Radius.circular(8.0),
+              ),
+              child: CachedNetworkImage(
+                cacheManager: CacheManager(
+                  Config(
+                    'customCacheKey',
+                    stalePeriod: const Duration(days: 7),
+                    maxNrOfCacheObjects: 100,
                   ),
-                  imageUrl: radio.thumbnail,
-                  fit: BoxFit.cover,
                 ),
+                imageUrl: radio.thumbnail,
+                fit: BoxFit.cover,
+                width: 120,
+                height: 120,
               ),
             ),
-            const SizedBox(width: 16),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    radio.title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      radio.title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                     ),
-                  ),
-                  Text(
-                    radio.description,
-                    style: TextStyle(
-                      fontSize: 12,
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Text(
+                        radio.description,
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 3,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
