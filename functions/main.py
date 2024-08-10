@@ -26,14 +26,12 @@ ENDPOINT_URL = f"https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJ
 
 PROMPTS = {
     'en': {
-        'thumbnail': "Generate a thumbnail image for the radio program based on this script: {script}",
-        'title': "Based on the contents of the radio script below, please think of an appropriate title. Please tell me just the title briefly.\n\n{script}",
-        'description': "Think of a suitable description based on the contents of the radio script below. Please give us a brief description. We will use that sentence as the radio description.\n\n{script}"
+        'title': "Based on the contents of the radio script below, please think of an appropriate title in English. Please provide only the title without any markdown-like symbols like #, ##, ###, or **. Please, do not hallucinate.\n\n{script}",
+        'description': "Think of a suitable description based on the contents of the radio script below in English. Please give us a brief description without any markdown-like symbols like #, ##, ###, or **. Please, do not hallucinate. We will use that sentence as the radio description.\n\n{script}"
     },
     'ja': {
-        'thumbnail': "このスクリプトに基づいて、ラジオ番組のサムネイル画像を生成してください: {script}",
-        'title': "以下のラジオスクリプトの内容に基づいて、適切なタイトルを考えてください。タイトルだけを簡潔に教えてください。\n\n{script}",
-        'description': "以下のラジオスクリプトの内容に基づいて、適切な説明文を考えてください。簡潔な説明文を教えてください。その文をラジオの説明文として使用します。\n\n{script}"
+        'title': "以下のラジオスクリプトの内容に基づいて、日本語で適切なタイトルを考えてください。タイトルだけをMarkdown形式の記号なしで簡潔に教えてください。ハルシネーションを起こさないようにしてください。\n\n{script}",
+        'description': "以下のラジオスクリプトの内容に基づいて、日本語で適切な説明文を考えてください。Markdown形式の記号なしで簡潔な説明文を教えてください。ハルシネーションを起こさないようにしてください。その文をラジオの説明文として使用します。\n\n{script}"
     }
 }
 
@@ -91,18 +89,23 @@ def generate_prompt(prompt_type, script, language='en'):
     template = PROMPTS.get(language, PROMPTS['en']).get(prompt_type, '')
     return template.format(script=script)
 
-def generate_thumbnail_image(script, upload_id, language):
+def generate_thumbnail_prompt(script):
+    prompt = ("I want to create a thumbnail image for this radio show based on the script. Please understand the content of the script, think of a suitable thumbnail image for this radio show, and come up with a prompt to send to the image generation API.")
+    return call_gemini_api(f"{prompt}\n\n{script}")
+
+def generate_thumbnail_image(script, upload_id):
     access_token = get_access_token()
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'application/json; charset=utf-8'
     }
     
-    prompt = generate_prompt('thumbnail', script, language)
+    thumbnail_prompt = generate_thumbnail_prompt(script)
+    print(thumbnail_prompt)
     request_body = {
         "instances": [
             {
-                "prompt": prompt
+                "prompt": thumbnail_prompt
             }
         ],
         "parameters": {
@@ -184,9 +187,9 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         
         prompt_script = uploaded_files
 
-        generated_script = call_gemini_api(prompt_script)
+        generated_script = call_gemini_api(f"{generate_prompt('title', prompt_script, language)}")
 
-        thumbnail_url = generate_thumbnail_image(generated_script, upload_id, language)
+        thumbnail_url = generate_thumbnail_image(generated_script, upload_id)
 
         prompt_title = generate_prompt('title', generated_script, language)
         prompt_description = generate_prompt('description', generated_script, language)
