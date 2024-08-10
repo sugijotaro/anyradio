@@ -43,15 +43,14 @@ class RadioListScreen extends StatelessWidget {
                           onTap: () {
                             viewModel.fetchRadioById(radio.id);
                             showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (context) =>
-                                  ChangeNotifierProvider.value(
-                                value: viewModel,
-                                child: RadioDetailScreen(),
-                              ),
-                            );
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.black,
+                                builder: (context) =>
+                                    ChangeNotifierProvider.value(
+                                      value: viewModel,
+                                      child: RadioDetailScreen(),
+                                    ));
                           },
                           child: RadioGridItem(radio: radio),
                         );
