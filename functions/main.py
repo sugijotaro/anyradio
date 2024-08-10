@@ -121,7 +121,7 @@ def generate_thumbnail_image(script, upload_id):
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'application/json; charset=utf-8'
     }
-    
+
     thumbnail_prompt = generate_thumbnail_prompt(script)
     request_body = {
         "instances": [
@@ -138,27 +138,35 @@ def generate_thumbnail_image(script, upload_id):
     
     if response.status_code == 200:
         response_json = response.json()
-        img_base64 = response_json['predictions'][0]['bytesBase64Encoded']
         
-        img_data = base64.b64decode(img_base64)
-        img = Image.open(io.BytesIO(img_data))
-        img = img.convert("RGB")
-        img = img.resize((1024, 1024))
+        if 'predictions' in response_json and len(response_json['predictions']) > 0:
+            img_base64 = response_json['predictions'][0].get('bytesBase64Encoded', None)
+            
+            if img_base64:
+                img_data = base64.b64decode(img_base64)
+                img = Image.open(io.BytesIO(img_data))
+                img = img.convert("RGB")
+                img = img.resize((1024, 1024))
 
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
-        img.save(temp_file, format="JPEG", quality=85)
-        temp_file_path = temp_file.name
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
+                img.save(temp_file, format="JPEG", quality=85)
+                temp_file_path = temp_file.name
 
-        blob = bucket.blob(f'audio/{upload_id}/thumbnail.jpg')
-        blob.upload_from_filename(temp_file_path)
-        blob.make_public()
+                blob = bucket.blob(f'audio/{upload_id}/thumbnail.jpg')
+                blob.upload_from_filename(temp_file_path)
+                blob.make_public()
 
-        os.remove(temp_file_path)
+                os.remove(temp_file_path)
 
-        return blob.public_url
+                return blob.public_url
+            else:
+                print("Error: Image data not found in predictions.")
+        else:
+            print(f"Error: No valid predictions found in response. Response: {response_json}")
     else:
         print(f"Error: {response.status_code}, {response.text}")
-        return None
+    
+    return None
 
 def generate_audio_from_text(text, upload_id, language):
     client = texttospeech.TextToSpeechClient()
