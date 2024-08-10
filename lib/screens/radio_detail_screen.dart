@@ -18,7 +18,22 @@ class RadioDetailScreen extends StatelessWidget {
 
         return Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: AppBar(),
+            appBar: AppBar(
+              title: Text(
+                radio.title,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              leading: IconButton(
+                icon: Icon(
+                  Icons.expand_more,
+                  color: Colors.white,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
             body: SafeArea(
                 child: Container(
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
