@@ -61,7 +61,7 @@ class RadioDetailViewModel extends ChangeNotifier {
       album: "AnyRadio",
       title: radio!.title,
       artist: radio!.uploaderId,
-      artUri: Uri.parse(radio!.imageUrls.first),
+      artUri: Uri.parse(radio!.thumbnail),
     );
     _audioHandler.initPlayer(mediaItem);
     _listenToPlaybackState();

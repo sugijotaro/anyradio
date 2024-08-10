@@ -29,28 +29,43 @@ class RadioDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    height: 200,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: viewModel.radio!.imageUrls.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child:
-                              Image.network(viewModel.radio!.imageUrls[index]),
-                        );
-                      },
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16.0),
+                      child: Image.network(
+                        viewModel.radio!.thumbnail,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text(viewModel.radio!.title,
-                        style: TextStyle(fontSize: 24)),
+                    child: Text(
+                      viewModel.radio!.title,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(viewModel.radio!.description),
+                    child: Consumer<RadioDetailViewModel>(
+                      builder: (context, state, child) {
+                        return ProgressBar(
+                          progress: state.progressBarState.current,
+                          buffered: state.progressBarState.buffered,
+                          total: state.progressBarState.total,
+                          onSeek: (Duration position) {
+                            state.seek(position);
+                          },
+                        );
+                      },
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -73,7 +88,7 @@ class RadioDetailScreen extends StatelessWidget {
                                 onPressed: () =>
                                     context.read<RadioDetailViewModel>().play(),
                                 icon: Icon(Icons.play_arrow),
-                                iconSize: 32.0,
+                                iconSize: 48.0,
                               );
                             case AudioState.playing:
                               return IconButton(
@@ -81,12 +96,12 @@ class RadioDetailScreen extends StatelessWidget {
                                     .read<RadioDetailViewModel>()
                                     .pause(),
                                 icon: Icon(Icons.pause),
-                                iconSize: 32.0,
+                                iconSize: 48.0,
                               );
                             default:
                               return SizedBox(
-                                height: 32,
-                                width: 32,
+                                height: 48,
+                                width: 48,
                               );
                           }
                         },
@@ -94,19 +109,8 @@ class RadioDetailScreen extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Consumer<RadioDetailViewModel>(
-                      builder: (context, state, child) {
-                        return ProgressBar(
-                          progress: state.progressBarState.current,
-                          buffered: state.progressBarState.buffered,
-                          total: state.progressBarState.total,
-                          onSeek: (Duration position) {
-                            state.seek(position);
-                          },
-                        );
-                      },
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(viewModel.radio!.description),
                   ),
                 ],
               ),
