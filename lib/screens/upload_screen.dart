@@ -63,20 +63,25 @@ class _UploadScreenState extends State<UploadScreen> {
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _pickImages,
-                    child: Text(l10n.pickImages),
+                    child: Text(
+                      _imageFiles.isEmpty
+                          ? l10n.pickImages
+                          : l10n.pickImagesAgain,
+                    ),
                   ),
                   SizedBox(height: 20),
-                  viewModel.isUploading
-                      ? CircularProgressIndicator()
-                      : ElevatedButton(
-                          onPressed: () {
-                            if (_imageFiles.isNotEmpty) {
-                              viewModel.uploadFiles(
-                                  _imageFiles, l10n.localeName);
-                            }
-                          },
-                          child: Text(l10n.upload),
-                        ),
+                  if (_imageFiles.isNotEmpty)
+                    viewModel.isUploading
+                        ? CircularProgressIndicator()
+                        : ElevatedButton(
+                            onPressed: () {
+                              if (_imageFiles.isNotEmpty) {
+                                viewModel.uploadFiles(
+                                    _imageFiles, l10n.localeName);
+                              }
+                            },
+                            child: Text(l10n.upload),
+                          ),
                 ],
               ),
             );
