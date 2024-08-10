@@ -9,6 +9,7 @@ from google.cloud import texttospeech
 import requests
 import google.auth
 import google.auth.transport.requests
+import base64
 
 # Firebase Admin SDKの初期化
 cred = credentials.Certificate('anyradio-693a9-9571794b8f6e.json')
@@ -81,7 +82,7 @@ def generate_prompt_from_script(script, language='en'):
         prompt = f"Generate a thumbnail image for the radio program based on this script: {script}"
     return prompt
 
-def generate_thumbnail_image(script):
+def generate_thumbnail_image(script, upload_id):
     access_token = get_access_token()
     headers = {
         'Authorization': f'Bearer {access_token}',
@@ -105,7 +106,14 @@ def generate_thumbnail_image(script):
     if response.status_code == 200:
         response_json = response.json()
         img_base64 = response_json['predictions'][0]['bytesBase64Encoded']
-        return img_base64
+        
+        # 生成された画像をGoogle Cloud Storageにアップロード
+        img_data = base64.b64decode(img_base64)
+        blob = bucket.blob(f'thumbnails/{upload_id}.png')
+        blob.upload_from_string(img_data, content_type='image/png')
+        blob.make_public()
+        
+        return blob.public_url
     else:
         print(f"Error: {response.status_code}, {response.text}")
         return None
@@ -145,15 +153,6 @@ def generate_audio_from_text(text, upload_id, language):
 
     return blob.public_url
 
-def save_thumbnail_to_firestore(upload_id, img_base64):
-    if img_base64:
-        db.collection('radios').document(upload_id).update({
-            'thumbnail': img_base64
-        })
-        print("Thumbnail image saved to Firestore.")
-    else:
-        print("Failed to generate thumbnail image.")
-
 @firestore_fn.on_document_created(document="uploads/{uploadId}")
 def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None]) -> None:
     doc = event.data
@@ -169,20 +168,15 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
     try:
         uploaded_files = upload_files(file_urls)
         
-        # 言語に応じたプロンプトを設定
         if language == "ja":
             prompt_script = ["これらの画像や動画ファイルをもとに、ラジオ番組を作成したいと思います。ラジオのナレーターとして、自分が話しているような気分になって、リスナーに感情を呼び起こし、心に鮮やかなイメージを作り出すような、生き生きとした魅力的なスクリプトを書いてください。効果音や演出指示は含まず、見出しやラベルも使用せず、朗読できるようなプレーンテキストだけを提供してください。"] + uploaded_files
         else:
             prompt_script = ["I would like to create a radio program based on these images and video files. Please imagine yourself as a radio narrator and write a lively, engaging script to read out loud. The script should feel like you are telling a story to the listeners, evoking emotions and creating vivid imagery in their minds. Avoid including any sound effects or stage directions, and do not use any headings or labels. Just provide the plain text that can be read aloud."] + uploaded_files
 
-        # Gemini APIを呼び出してスクリプトを生成
         generated_script = call_gemini_api(prompt_script)
 
-        # 生成されたスクリプトを基にサムネイル画像を生成
-        img_base64 = generate_thumbnail_image(generated_script)
-        
-        # サムネイル画像をFirestoreに保存
-        save_thumbnail_to_firestore(upload_id, img_base64)
+        # サムネイル画像生成
+        thumbnail_url = generate_thumbnail_image(generated_script, upload_id)
 
         # スクリプトを使用してタイトルと説明文を生成
         if language == "ja":
@@ -195,10 +189,10 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         generated_title = call_gemini_api(prompt_title)
         generated_description = call_gemini_api(prompt_description)
 
-        # TTS APIを呼び出して音声を生成
+        # 音声生成
         audio_url = generate_audio_from_text(generated_script, upload_id, language)
 
-        # Radioドキュメントを作成
+        # Firestoreにデータを保存
         radio_data = {
             'title': generated_title,
             'description': generated_description,
@@ -214,6 +208,7 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
             'language': language,
             'lastPlayed': None,
             'privacyLevel': 'public',
+            'thumbnail': thumbnail_url
         }
 
         db.collection('radios').document(upload_id).set(radio_data)
