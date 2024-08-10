@@ -14,5 +14,6 @@
   "pickImages": "画像を選択",
   "pickImagesAgain": "画像を選択しなおす",
   "noImagesSelected": "画像が選択されていません。",
-  "upload": "アップロード"
+  "upload": "アップロード",
+  "doNotCloseApp": "コンテンツをアップロード中です。アプリを閉じないでください。"
 }

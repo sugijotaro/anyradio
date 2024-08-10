@@ -62,7 +62,7 @@ class _UploadScreenState extends State<UploadScreen> {
                         ),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: _pickImages,
+                    onPressed: viewModel.isUploading ? null : _pickImages,
                     child: Text(
                       _imageFiles.isEmpty
                           ? l10n.pickImages
@@ -71,17 +71,26 @@ class _UploadScreenState extends State<UploadScreen> {
                   ),
                   SizedBox(height: 20),
                   if (_imageFiles.isNotEmpty)
-                    viewModel.isUploading
-                        ? CircularProgressIndicator()
-                        : ElevatedButton(
-                            onPressed: () {
+                    ElevatedButton(
+                      onPressed: viewModel.isUploading
+                          ? null
+                          : () {
                               if (_imageFiles.isNotEmpty) {
                                 viewModel.uploadFiles(
                                     _imageFiles, l10n.localeName);
                               }
                             },
-                            child: Text(l10n.upload),
-                          ),
+                      child: Text(l10n.upload),
+                    ),
+                  if (viewModel.isUploading) ...[
+                    SizedBox(height: 20),
+                    CircularProgressIndicator(),
+                    SizedBox(height: 20),
+                    Text(
+                      l10n.doNotCloseApp,
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ],
                 ],
               ),
             );
