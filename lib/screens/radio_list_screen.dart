@@ -4,6 +4,7 @@ import '../viewmodels/radio_list_viewmodel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'radio_grid_item.dart';
 import 'radio_detail_screen.dart';
+import 'latest_radio_tile.dart'; // 新しいウィジェットをインポート
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 class RadioListScreen extends StatelessWidget {
@@ -25,37 +26,60 @@ class RadioListScreen extends StatelessWidget {
               onRefresh: () async {
                 await viewModel.fetchRadios();
               },
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 8.0,
-                  mainAxisSpacing: 8.0,
-                  childAspectRatio: 0.75,
-                ),
+              child: ListView(
                 padding: const EdgeInsets.only(
                   left: 8.0,
                   right: 8.0,
                   bottom: 100.0,
                 ),
-                itemCount: viewModel.radios.length,
-                itemBuilder: (context, index) {
-                  var radio = viewModel.radios[index];
-                  return GestureDetector(
-                    onTap: () {
-                      if (viewModel.currentlyPlayingRadio?.id != radio.id) {
-                        viewModel.fetchRadioById(radio.id);
-                      }
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.black,
-                        useSafeArea: true,
-                        builder: (context) => RadioDetailScreen(),
-                      );
+                children: [
+                  // "新着" タイトル
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Text(
+                      "新着",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // // 最新のラジオを表示
+                  if (viewModel.radios.isNotEmpty)
+                    LatestRadioTile(
+                      radio: viewModel.radios.first,
+                      onTap: () {
+                        if (viewModel.currentlyPlayingRadio?.id !=
+                            viewModel.radios.first.id) {
+                          viewModel.fetchRadioById(viewModel.radios.first.id);
+                        }
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.black,
+                          useSafeArea: true,
+                          builder: (context) => RadioDetailScreen(),
+                        );
+                      },
+                    ),
+                  SizedBox(height: 16),
+                  // グリッドのリスト
+                  GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8.0,
+                      mainAxisSpacing: 8.0,
+                      childAspectRatio: 0.75,
+                    ),
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: viewModel.radios.length,
+                    itemBuilder: (context, index) {
+                      var radio = viewModel.radios[index];
+                      return RadioGridItem(radio: radio);
                     },
-                    child: RadioGridItem(radio: radio),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
           if (viewModel.currentlyPlayingRadio != null)
