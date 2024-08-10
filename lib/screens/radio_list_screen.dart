@@ -61,7 +61,6 @@ class RadioListScreen extends StatelessWidget {
                       },
                     ),
                   SizedBox(height: 16),
-                  // グリッドのリスト
                   GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
