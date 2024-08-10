@@ -61,31 +61,37 @@ class _UploadScreenState extends State<UploadScreen> {
       create: (_) => UploadViewModel(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(l10n.uploadImagesVideos),
+          title: Text(l10n.uploadImages),
         ),
         body: Consumer<UploadViewModel>(
           builder: (context, viewModel, child) {
-            return Center(
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _imageFiles.isEmpty
-                      ? Text(l10n.noImagesSelected)
-                      : Expanded(
-                          child: GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 4.0,
-                              mainAxisSpacing: 4.0,
-                            ),
-                            itemCount: _imageFiles.length,
-                            itemBuilder: (context, index) {
-                              return Image.file(_imageFiles[index],
-                                  fit: BoxFit.cover);
-                            },
-                          ),
-                        ),
+                  Text(
+                    l10n.uploadInstructions,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    l10n.tipsForCreatingGreatRadio,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    l10n.exampleTips,
+                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    l10n.privacyNotice,
+                    style: TextStyle(fontSize: 14, color: Colors.white),
+                  ),
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: viewModel.isUploading ? null : _pickImages,
@@ -96,6 +102,21 @@ class _UploadScreenState extends State<UploadScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
+                  if (_imageFiles.isNotEmpty)
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 4.0,
+                          mainAxisSpacing: 4.0,
+                        ),
+                        itemCount: _imageFiles.length,
+                        itemBuilder: (context, index) {
+                          return Image.file(_imageFiles[index],
+                              fit: BoxFit.cover);
+                        },
+                      ),
+                    ),
                   if (_imageFiles.isNotEmpty)
                     ElevatedButton(
                       onPressed: viewModel.isUploading
