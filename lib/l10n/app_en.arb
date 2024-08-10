@@ -15,5 +15,8 @@
   "pickImagesAgain": "Pick Images Again",
   "noImagesSelected": "No images selected.",
   "upload": "Upload",
-  "doNotCloseApp": "Your content is being uploaded. Please do not close the app."
+  "doNotCloseApp": "Your content is being uploaded. Please do not close the app.",
+  "uploadComplete": "Upload Complete",
+  "uploadCompleteMessage": "Your content has been successfully uploaded.",
+  "ok": "OK"
 }

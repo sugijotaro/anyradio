@@ -15,5 +15,8 @@
   "pickImagesAgain": "画像を選択しなおす",
   "noImagesSelected": "画像が選択されていません。",
   "upload": "アップロード",
-  "doNotCloseApp": "コンテンツをアップロード中です。アプリを閉じないでください。"
+  "doNotCloseApp": "コンテンツをアップロード中です。アプリを閉じないでください。",
+  "uploadComplete": "アップロード完了",
+  "uploadCompleteMessage": "コンテンツが正常にアップロードされました。",
+  "ok": "OK"
 }

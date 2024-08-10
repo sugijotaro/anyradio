@@ -27,6 +27,32 @@ class _UploadScreenState extends State<UploadScreen> {
     });
   }
 
+  Future<void> _showCompletionAlert(BuildContext context) async {
+    final l10n = L10n.of(context);
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(l10n.uploadComplete),
+          content: Text(l10n.uploadCompleteMessage),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(l10n.ok),
+            ),
+          ],
+        );
+      },
+    );
+
+    setState(() {
+      _imageFiles = [];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
@@ -74,10 +100,15 @@ class _UploadScreenState extends State<UploadScreen> {
                     ElevatedButton(
                       onPressed: viewModel.isUploading
                           ? null
-                          : () {
+                          : () async {
                               if (_imageFiles.isNotEmpty) {
-                                viewModel.uploadFiles(
-                                    _imageFiles, l10n.localeName);
+                                try {
+                                  await viewModel.uploadFiles(
+                                      _imageFiles, l10n.localeName);
+                                  _showCompletionAlert(context);
+                                } catch (e) {
+                                  print("Upload failed: $e");
+                                }
                               }
                             },
                       child: Text(l10n.upload),
@@ -86,10 +117,7 @@ class _UploadScreenState extends State<UploadScreen> {
                     SizedBox(height: 20),
                     CircularProgressIndicator(),
                     SizedBox(height: 20),
-                    Text(
-                      l10n.doNotCloseApp,
-                      style: TextStyle(color: Colors.red),
-                    ),
+                    Text(l10n.doNotCloseApp),
                   ],
                 ],
               ),
