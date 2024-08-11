@@ -112,9 +112,8 @@ def generate_prompt(prompt_type, script, language='en'):
     return template.format(script=script)
 
 def generate_thumbnail_prompt(script):
-    prompt = ("I want to create a thumbnail image for this radio show based on the script. "
-              "Please understand the content of the script, think of a suitable thumbnail image "
-              "for this radio show, and come up with a prompt to send to the image generation API.")
+    prompt = ("Create a concise prompt for generating a thumbnail image based on the radio script content. "
+            "The thumbnail should represent the main theme of the script effectively.")
     return call_gemini_api(f"{prompt}\n\n{script}")
 
 def generate_thumbnail_image_with_retry(thumbnail_prompt, upload_id, retries=2, delay=5):
