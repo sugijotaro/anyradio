@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
+import '../viewmodels/auth_viewmodel.dart';
 import 'radio_detail_screen.dart';
 import 'horizontal_card_tile.dart';
 import 'section_with_horizontal_scroll.dart';
@@ -12,7 +13,9 @@ class RadioListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    final viewModel = Provider.of<RadioListViewModel>(context, listen: true);
+    final radioViewModel =
+        Provider.of<RadioListViewModel>(context, listen: true);
+    final authViewModel = Provider.of<AuthViewModel>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -20,7 +23,7 @@ class RadioListScreen extends StatelessWidget {
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
-              viewModel.setLanguageFilter(value);
+              radioViewModel.setLanguageFilter(value);
             },
             itemBuilder: (BuildContext context) {
               return [
@@ -44,12 +47,12 @@ class RadioListScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          if (viewModel.radios.isEmpty)
+          if (radioViewModel.radios.isEmpty)
             Center(child: CircularProgressIndicator())
           else
             RefreshIndicator(
               onRefresh: () async {
-                await viewModel.fetchRadios();
+                await radioViewModel.fetchRadios();
               },
               child: ListView(
                 padding: const EdgeInsets.only(
@@ -68,13 +71,14 @@ class RadioListScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (viewModel.radios.isNotEmpty)
+                  if (radioViewModel.radios.isNotEmpty)
                     HorizontalCardTile(
-                      radio: viewModel.radios.first,
+                      radio: radioViewModel.radios.first,
                       onTap: () {
-                        if (viewModel.currentlyPlayingRadio?.id !=
-                            viewModel.radios.first.id) {
-                          viewModel.fetchRadioById(viewModel.radios.first.id);
+                        if (radioViewModel.currentlyPlayingRadio?.id !=
+                            radioViewModel.radios.first.id) {
+                          radioViewModel
+                              .fetchRadioById(radioViewModel.radios.first.id);
                         }
                         showModalBottomSheet(
                           context: context,
@@ -85,12 +89,14 @@ class RadioListScreen extends StatelessWidget {
                         );
                       },
                     ),
-                  ..._buildGenreSections(viewModel, l10n, context),
+                  ..._buildGenreSections(radioViewModel, l10n, context),
+                  _buildUserPostedRadiosSection(
+                      context, radioViewModel, authViewModel, l10n),
                   SizedBox(height: 16),
                 ],
               ),
             ),
-          NowPlayingBar(viewModel: viewModel),
+          NowPlayingBar(viewModel: radioViewModel),
         ],
       ),
     );
@@ -132,6 +138,37 @@ class RadioListScreen extends StatelessWidget {
         },
       );
     }).toList();
+  }
+
+  Widget _buildUserPostedRadiosSection(
+      BuildContext context,
+      RadioListViewModel radioViewModel,
+      AuthViewModel authViewModel,
+      L10n l10n) {
+    final userRadios = radioViewModel.radios
+        .where((radio) => radio.uploaderId == authViewModel.currentUser?.id)
+        .toList();
+
+    if (userRadios.isEmpty) return SizedBox.shrink();
+
+    return SectionWithHorizontalScroll(
+      title: 'l10n.yourPostedRadios',
+      radios: userRadios,
+      itemWidth: 120,
+      itemHeight: 120,
+      onTap: (radio) {
+        if (radioViewModel.currentlyPlayingRadio?.id != radio.id) {
+          radioViewModel.fetchRadioById(radio.id);
+        }
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.black,
+          useSafeArea: true,
+          builder: (context) => RadioDetailScreen(),
+        );
+      },
+    );
   }
 
   String genreToString(RadioGenre genre, L10n l10n) {
