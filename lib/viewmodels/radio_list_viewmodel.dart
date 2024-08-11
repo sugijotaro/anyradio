@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:rxdart/rxdart.dart';
@@ -103,7 +104,6 @@ class RadioListViewModel extends ChangeNotifier {
       id: filePath,
       album: "AnyRadio",
       title: currentlyPlayingRadio!.title,
-      artist: currentlyPlayingRadio!.uploaderId,
       artUri: Uri.parse(currentlyPlayingRadio!.thumbnail),
     );
 
@@ -161,12 +161,18 @@ class RadioListViewModel extends ChangeNotifier {
   void playNextRadio() {
     if (radios.isEmpty) return;
 
-    final currentIndex = radios.indexOf(currentlyPlayingRadio!);
-    final nextIndex = (currentIndex + 1) % radios.length;
-    final nextRadio = radios[nextIndex];
+    final otherRadios =
+        radios.where((radio) => radio != currentlyPlayingRadio).toList();
 
-    print("Playing next radio: ${nextRadio.title}");
-    fetchRadioById(nextRadio.id);
+    if (otherRadios.isNotEmpty) {
+      final random = Random();
+      final nextRadio = otherRadios[random.nextInt(otherRadios.length)];
+
+      print("Playing next radio: ${nextRadio.title}");
+      fetchRadioById(nextRadio.id);
+    } else {
+      print("No other radios available to play.");
+    }
   }
 
   void _listenForProgressBarState() {
