@@ -300,3 +300,34 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
     except Exception as e:
         print(f"Error processing upload: {e}")
         db.collection('uploads').document(upload_id).update({'status': 'failed'})
+
+@firestore_fn.on_document_created(document="radios/{radioId}")
+def on_radio_document_created(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None]) -> None:
+    doc = event.data
+    if not doc:
+        print("No data found in document.")
+        return
+
+    data = doc.to_dict()
+    radio_id = event.params.get('radioId')
+    script = data.get('script', '')
+    thumbnail_url = data.get('thumbnail', '')
+
+    if not thumbnail_url:
+        print(f"Thumbnail missing for radio ID: {radio_id}, attempting to generate...")
+
+        try:
+            thumbnail_prompt = generate_thumbnail_prompt(script)
+
+            generated_thumbnail_url = generate_thumbnail_image_with_retry(thumbnail_prompt, radio_id, retries=2, delay=5)
+
+            if generated_thumbnail_url:
+                db.collection('radios').document(radio_id).update({
+                    'thumbnail': generated_thumbnail_url
+                })
+                print(f"Thumbnail successfully generated and updated for radio ID: {radio_id}")
+            else:
+                print(f"Failed to generate thumbnail for radio ID: {radio_id} after multiple attempts.")
+
+        except Exception as e:
+            print(f"Error generating thumbnail for radio ID: {radio_id}: {e}")
