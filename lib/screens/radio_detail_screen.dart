@@ -54,7 +54,7 @@ class _RadioDetailScreenState extends State<RadioDetailScreen> {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             title: Text(
-              radio.title,
+              l10n.anyRadio,
               maxLines: 1,
               style: TextStyle(
                 fontSize: 16,
