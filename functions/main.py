@@ -3,6 +3,7 @@ from firebase_functions import firestore_fn
 import google.generativeai as genai
 import tempfile
 import os
+import random
 import urllib.request
 import mimetypes
 from google.cloud import texttospeech
@@ -190,11 +191,34 @@ def generate_thumbnail_image(script, upload_id):
 def generate_audio_from_text(text, upload_id, language):
     client = texttospeech.TextToSpeechClient()
 
+    if language == "ja":
+        voices = [
+            "ja-JP-Standard-A",
+            "ja-JP-Standard-B",
+            "ja-JP-Standard-C",
+            "ja-JP-Standard-D"
+        ]
+    else:
+        voices = [
+            "en-US-Standard-A",
+            "en-US-Standard-B",
+            "en-US-Standard-C",
+            "en-US-Standard-D",
+            "en-US-Standard-E",
+            "en-US-Standard-F",
+            "en-US-Standard-G",
+            "en-US-Standard-H",
+            "en-US-Standard-I",
+            "en-US-Standard-J"
+        ]
+
+    selected_voice_name = random.choice(voices)
+
     synthesis_input = texttospeech.SynthesisInput(text=text)
 
     voice = texttospeech.VoiceSelectionParams(
         language_code="ja-JP" if language == "ja" else "en-US",
-        ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+        name=selected_voice_name
     )
 
     audio_config = texttospeech.AudioConfig(
