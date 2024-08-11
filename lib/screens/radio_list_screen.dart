@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-import 'radio_grid_item.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
 import 'radio_detail_screen.dart';
 import 'horizontal_card_tile.dart';
 import 'section_with_horizontal_scroll.dart';
+import 'now_playing_bar.dart';
 import '../models/radio.dart';
 
 class RadioListScreen extends StatelessWidget {
@@ -14,14 +13,6 @@ class RadioListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
     final viewModel = Provider.of<RadioListViewModel>(context, listen: true);
-
-    final genresWithCounts = RadioGenre.values.map((genre) {
-      final genreRadios =
-          viewModel.radios.where((radio) => radio.genre == genre).toList();
-      return MapEntry(genre, genreRadios.length);
-    }).toList();
-
-    genresWithCounts.sort((a, b) => b.value.compareTo(a.value));
 
     return Scaffold(
       appBar: AppBar(
@@ -71,108 +62,57 @@ class RadioListScreen extends StatelessWidget {
                         );
                       },
                     ),
-                  ...genresWithCounts.map((entry) {
-                    final genre = entry.key;
-                    final genreRadios = viewModel.radios
-                        .where((radio) => radio.genre == genre)
-                        .toList();
-                    if (genreRadios.isEmpty) return SizedBox.shrink();
-
-                    return SectionWithHorizontalScroll(
-                      title: genreToString(genre, l10n),
-                      radios: genreRadios,
-                      itemWidth: 120,
-                      itemHeight: 120,
-                      onTap: (radio) {
-                        if (viewModel.currentlyPlayingRadio?.id != radio.id) {
-                          viewModel.fetchRadioById(radio.id);
-                        }
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.black,
-                          useSafeArea: true,
-                          builder: (context) => RadioDetailScreen(),
-                        );
-                      },
-                    );
-                  }).toList(),
+                  ..._buildGenreSections(viewModel, l10n, context),
                   SizedBox(height: 16),
                 ],
               ),
             ),
-          if (viewModel.currentlyPlayingRadio != null)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.black,
-                    useSafeArea: true,
-                    builder: (context) => RadioDetailScreen(),
-                  );
-                },
-                child: Container(
-                  color: Colors.black.withOpacity(0.9),
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        leading: Image.network(
-                          viewModel.currentlyPlayingRadio!.thumbnail,
-                          fit: BoxFit.cover,
-                          width: 50,
-                          height: 50,
-                        ),
-                        title: Text(
-                          viewModel.currentlyPlayingRadio!.title,
-                          style: TextStyle(color: Colors.white),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            viewModel.audioState == AudioState.playing
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            if (viewModel.audioState == AudioState.playing) {
-                              viewModel.pause();
-                            } else {
-                              viewModel.play();
-                            }
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: ProgressBar(
-                          progress: viewModel.progressBarState.current,
-                          buffered: viewModel.progressBarState.buffered,
-                          total: viewModel.progressBarState.total,
-                          onSeek: (Duration position) {
-                            viewModel.seek(position);
-                          },
-                          timeLabelLocation: TimeLabelLocation.none,
-                          thumbRadius: 0.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          NowPlayingBar(viewModel: viewModel),
         ],
       ),
     );
   }
 
+  List<Widget> _buildGenreSections(
+      RadioListViewModel viewModel, L10n l10n, BuildContext context) {
+    // Sorting and building genre sections logic
+    final genresWithCounts = RadioGenre.values.map((genre) {
+      final genreRadios =
+          viewModel.radios.where((radio) => radio.genre == genre).toList();
+      return MapEntry(genre, genreRadios.length);
+    }).toList();
+
+    genresWithCounts.sort((a, b) => b.value.compareTo(a.value));
+
+    return genresWithCounts.map((entry) {
+      final genre = entry.key;
+      final genreRadios =
+          viewModel.radios.where((radio) => radio.genre == genre).toList();
+      if (genreRadios.isEmpty) return SizedBox.shrink();
+
+      return SectionWithHorizontalScroll(
+        title: genreToString(genre, l10n),
+        radios: genreRadios,
+        itemWidth: 120,
+        itemHeight: 120,
+        onTap: (radio) {
+          if (viewModel.currentlyPlayingRadio?.id != radio.id) {
+            viewModel.fetchRadioById(radio.id);
+          }
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.black,
+            useSafeArea: true,
+            builder: (context) => RadioDetailScreen(),
+          );
+        },
+      );
+    }).toList();
+  }
+
   String genreToString(RadioGenre genre, L10n l10n) {
+    // Genre translation logic
     switch (genre) {
       case RadioGenre.comedy:
         return l10n.comedyGenre;
