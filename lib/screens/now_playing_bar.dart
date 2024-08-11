@@ -33,6 +33,10 @@ class _NowPlayingBarState extends State<NowPlayingBar> {
     }
   }
 
+  void _playNextRadio() {
+    widget.viewModel.playNextRadio();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.viewModel.currentlyPlayingRadio == null)
@@ -78,20 +82,32 @@ class _NowPlayingBarState extends State<NowPlayingBar> {
                     animateDuration: Duration(milliseconds: 1500),
                   ),
                 ),
-                trailing: IconButton(
-                  icon: Icon(
-                    widget.viewModel.audioState == AudioState.playing
-                        ? Icons.pause
-                        : Icons.play_arrow,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    if (widget.viewModel.audioState == AudioState.playing) {
-                      widget.viewModel.pause();
-                    } else {
-                      widget.viewModel.play();
-                    }
-                  },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        widget.viewModel.audioState == AudioState.playing
+                            ? Icons.pause
+                            : Icons.play_arrow,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        if (widget.viewModel.audioState == AudioState.playing) {
+                          widget.viewModel.pause();
+                        } else {
+                          widget.viewModel.play();
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.skip_next,
+                        color: Colors.white,
+                      ),
+                      onPressed: _playNextRadio,
+                    ),
+                  ],
                 ),
               ),
               ProgressBar(
