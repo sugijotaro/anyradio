@@ -18,12 +18,8 @@ class _UploadScreenState extends State<UploadScreen> {
     final pickedFiles = await picker.pickMultiImage();
 
     setState(() {
-      if (pickedFiles != null) {
-        _imageFiles =
-            pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
-      } else {
-        print('No images selected.');
-      }
+      _imageFiles =
+          pickedFiles.map((pickedFile) => File(pickedFile.path)).toList();
     });
   }
 
