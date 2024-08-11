@@ -8,7 +8,32 @@ import '../viewmodels/radio_list_viewmodel.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class RadioDetailScreen extends StatelessWidget {
+class RadioDetailScreen extends StatefulWidget {
+  @override
+  _RadioDetailScreenState createState() => _RadioDetailScreenState();
+}
+
+class _RadioDetailScreenState extends State<RadioDetailScreen> {
+  bool _isVisible = true;
+
+  @override
+  void didUpdateWidget(RadioDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final radioViewModel = context.read<RadioListViewModel>();
+
+    if (oldWidget != widget && radioViewModel.currentlyPlayingRadio != null) {
+      setState(() {
+        _isVisible = false;
+      });
+      Future.delayed(Duration(milliseconds: 50), () {
+        setState(() {
+          _isVisible = true;
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<RadioListViewModel, AuthViewModel>(
@@ -98,13 +123,19 @@ class RadioDetailScreen extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: OverflowTextAnimated(
-                        text: radio.title,
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                        curve: Curves.linear,
-                        animation: OverFlowTextAnimations.scrollOpposite,
-                        animateDuration: Duration(milliseconds: 1500),
+                      child: Visibility(
+                        visible: _isVisible,
+                        child: OverflowTextAnimated(
+                          key: ValueKey(radio.id),
+                          text: radio.title,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          curve: Curves.linear,
+                          animation: OverFlowTextAnimations.scrollOpposite,
+                          animateDuration: Duration(milliseconds: 1500),
+                        ),
                       ),
                     ),
                     Padding(
