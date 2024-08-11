@@ -120,6 +120,15 @@ class RadioListViewModel extends ChangeNotifier {
     if (audioState != state) {
       audioState = state;
       notifyListeners();
+
+      if (state == AudioState.paused &&
+          progressBarState.current >= progressBarState.total &&
+          progressBarState.total != Duration.zero) {
+        print("Audio has completed playing: ${currentlyPlayingRadio?.title}");
+        playNextRadio();
+      } else {
+        print("Audio state changed to: $audioState");
+      }
     }
   }
 
@@ -147,6 +156,17 @@ class RadioListViewModel extends ChangeNotifier {
         setAudioState(AudioState.paused);
       }
     });
+  }
+
+  void playNextRadio() {
+    if (radios.isEmpty) return;
+
+    final currentIndex = radios.indexOf(currentlyPlayingRadio!);
+    final nextIndex = (currentIndex + 1) % radios.length;
+    final nextRadio = radios[nextIndex];
+
+    print("Playing next radio: ${nextRadio.title}");
+    fetchRadioById(nextRadio.id);
   }
 
   void _listenForProgressBarState() {
