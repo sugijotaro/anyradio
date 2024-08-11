@@ -42,5 +42,8 @@
   "scienceGenre": "サイエンス",
   "sportsGenre": "スポーツ",
   "fictionGenre": "フィクション",
-  "religionGenre": "宗教"
+  "religionGenre": "宗教",
+  "showAllLanguages": "すべて表示",
+  "showEnglishOnly": "英語のみ表示",
+  "showJapaneseOnly": "日本語のみ表示"
 }

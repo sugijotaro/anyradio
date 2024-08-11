@@ -42,5 +42,8 @@
   "scienceGenre": "Science",
   "sportsGenre": "Sports",
   "fictionGenre": "Fiction",
-  "religionGenre": "Religion"
+  "religionGenre": "Religion",
+  "showAllLanguages": "Show All",
+  "showEnglishOnly": "Show English Only",
+  "showJapaneseOnly": "Show Japanese Only"
 }

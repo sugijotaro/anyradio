@@ -18,6 +18,30 @@ class RadioListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.anyRadio),
         toolbarHeight: 28.0,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              print('Selected filter: $value');
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'all',
+                  child: Text(l10n.showAllLanguages),
+                ),
+                PopupMenuItem<String>(
+                  value: 'english',
+                  child: Text(l10n.showEnglishOnly),
+                ),
+                PopupMenuItem<String>(
+                  value: 'japanese',
+                  child: Text(l10n.showJapaneseOnly),
+                ),
+              ];
+            },
+            icon: Icon(Icons.filter_list),
+          ),
+        ],
       ),
       body: Stack(
         children: [
