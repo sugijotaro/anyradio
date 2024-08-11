@@ -71,8 +71,6 @@ class RadioListScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  _buildUserPostedRadiosSection(
-                      context, radioViewModel, authViewModel, l10n),
                   if (radioViewModel.radios.isNotEmpty)
                     HorizontalCardTile(
                       radio: radioViewModel.radios.first,
@@ -91,6 +89,8 @@ class RadioListScreen extends StatelessWidget {
                         );
                       },
                     ),
+                  _buildUserPostedRadiosSection(
+                      context, radioViewModel, authViewModel, l10n),
                   ..._buildGenreSections(radioViewModel, l10n, context),
                   SizedBox(height: 16),
                 ],
