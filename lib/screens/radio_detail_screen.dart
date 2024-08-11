@@ -34,6 +34,10 @@ class _RadioDetailScreenState extends State<RadioDetailScreen> {
     }
   }
 
+  void _playNextRadio() {
+    context.read<RadioListViewModel>().playNextRadio();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer2<RadioListViewModel, AuthViewModel>(
@@ -152,21 +156,42 @@ class _RadioDetailScreenState extends State<RadioDetailScreen> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Center(
-                        child: IconButton(
-                          onPressed: () {
-                            if (radioViewModel.audioState ==
-                                AudioState.playing) {
-                              radioViewModel.pause();
-                            } else {
-                              radioViewModel.play();
-                            }
-                          },
-                          icon: Icon(
-                            radioViewModel.audioState == AudioState.playing
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            size: 48.0,
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Invisible button to balance the layout
+                            IconButton(
+                              icon: Icon(
+                                Icons.skip_previous,
+                                size: 48.0,
+                                color: Colors.transparent,
+                              ),
+                              onPressed: null, // Dummy button, no action
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                if (radioViewModel.audioState ==
+                                    AudioState.playing) {
+                                  radioViewModel.pause();
+                                } else {
+                                  radioViewModel.play();
+                                }
+                              },
+                              icon: Icon(
+                                radioViewModel.audioState == AudioState.playing
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                size: 48.0,
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.skip_next,
+                                size: 48.0,
+                              ),
+                              onPressed: _playNextRadio,
+                            ),
+                          ],
                         ),
                       ),
                     ),
