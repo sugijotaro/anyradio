@@ -35,7 +35,7 @@ class OnboardingScreen extends StatelessWidget {
                   SizedBox(height: 10),
                   Text(
                     l10n.howItWorksSteps,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
                   SizedBox(height: 20),
                   Text(
@@ -45,7 +45,7 @@ class OnboardingScreen extends StatelessWidget {
                   SizedBox(height: 10),
                   Text(
                     l10n.safetyEnjoymentDescription,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
                   SizedBox(height: 20),
                 ],
