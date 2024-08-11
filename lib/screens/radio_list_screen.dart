@@ -71,6 +71,8 @@ class RadioListScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  _buildUserPostedRadiosSection(
+                      context, radioViewModel, authViewModel, l10n),
                   if (radioViewModel.radios.isNotEmpty)
                     HorizontalCardTile(
                       radio: radioViewModel.radios.first,
@@ -90,8 +92,6 @@ class RadioListScreen extends StatelessWidget {
                       },
                     ),
                   ..._buildGenreSections(radioViewModel, l10n, context),
-                  _buildUserPostedRadiosSection(
-                      context, radioViewModel, authViewModel, l10n),
                   SizedBox(height: 16),
                 ],
               ),
@@ -104,7 +104,6 @@ class RadioListScreen extends StatelessWidget {
 
   List<Widget> _buildGenreSections(
       RadioListViewModel viewModel, L10n l10n, BuildContext context) {
-    // Sorting and building genre sections logic
     final genresWithCounts = RadioGenre.values.map((genre) {
       final genreRadios =
           viewModel.radios.where((radio) => radio.genre == genre).toList();
