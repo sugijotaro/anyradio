@@ -52,8 +52,7 @@ class RadioGridItem extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
             child: Container(
-              width:
-                  width, // Ensure the text container has the same width as the image
+              width: width,
               child: Text(
                 radio.title,
                 maxLines: 2,
