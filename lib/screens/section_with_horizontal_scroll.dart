@@ -33,7 +33,7 @@ class SectionWithHorizontalScroll extends StatelessWidget {
           ),
         ),
         Container(
-          height: itemHeight,
+          height: itemHeight + 50,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: radios.length,

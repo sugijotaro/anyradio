@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'radio_grid_item.dart';
 import 'radio_detail_screen.dart';
 import 'horizontal_card_tile.dart';
+import 'section_with_horizontal_scroll.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 class RadioListScreen extends StatelessWidget {
@@ -60,48 +61,23 @@ class RadioListScreen extends StatelessWidget {
                         );
                       },
                     ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(
-                      "急上昇",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 180,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: viewModel.radios.length,
-                      itemBuilder: (context, index) {
-                        var radio = viewModel.radios[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              if (viewModel.currentlyPlayingRadio?.id !=
-                                  radio.id) {
-                                viewModel.fetchRadioById(radio.id);
-                              }
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.black,
-                                useSafeArea: true,
-                                builder: (context) => RadioDetailScreen(),
-                              );
-                            },
-                            child: RadioGridItem(
-                              radio: radio,
-                              width: 120,
-                              height: 120,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                  SectionWithHorizontalScroll(
+                    title: "急上昇",
+                    radios: viewModel.radios,
+                    itemWidth: 120,
+                    itemHeight: 120,
+                    onTap: (radio) {
+                      if (viewModel.currentlyPlayingRadio?.id != radio.id) {
+                        viewModel.fetchRadioById(radio.id);
+                      }
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.black,
+                        useSafeArea: true,
+                        builder: (context) => RadioDetailScreen(),
+                      );
+                    },
                   ),
                   SizedBox(height: 16),
                   GridView.builder(
