@@ -13,6 +13,7 @@ import base64
 from PIL import Image
 import io
 import time
+import gc
 
 cred = credentials.Certificate('anyradio-693a9-9571794b8f6e.json')
 app = initialize_app(cred)
@@ -125,8 +126,8 @@ def generate_thumbnail_image_with_retry(script, upload_id, retries=3, delay=5):
             return thumbnail_url
         
         print(f"Retry {attempt + 1}/{retries} failed. Retrying in {delay} seconds...")
-        time.sleep(delay)
-    
+        time.sleep(delay * (attempt + 1))
+
     print("Failed to generate thumbnail after multiple attempts.")
     return None
 
@@ -172,6 +173,8 @@ def generate_thumbnail_image(script, upload_id):
                 blob.make_public()
 
                 os.remove(temp_file_path)
+                img.close()
+                gc.collect()
 
                 return blob.public_url
             else:
