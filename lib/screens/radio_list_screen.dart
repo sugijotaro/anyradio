@@ -16,7 +16,8 @@ class RadioListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.radioList),
+        title: Text(l10n.anyRadio),
+        toolbarHeight: 28.0,
       ),
       body: Stack(
         children: [
@@ -35,11 +36,11 @@ class RadioListScreen extends StatelessWidget {
                 ),
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    padding: const EdgeInsets.only(top: 20, bottom: 12),
                     child: Text(
                       "新着",
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
