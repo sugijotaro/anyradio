@@ -102,8 +102,9 @@ class RadioListViewModel extends ChangeNotifier {
 
     final mediaItem = MediaItem(
       id: filePath,
-      album: "AnyRadio",
+      album: 'AnyRadio',
       title: currentlyPlayingRadio!.title,
+      artist: 'AnyRadio',
       artUri: Uri.parse(currentlyPlayingRadio!.thumbnail),
     );
 
