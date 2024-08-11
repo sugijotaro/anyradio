@@ -117,10 +117,10 @@ def generate_thumbnail_prompt(script):
               "for this radio show, and come up with a prompt to send to the image generation API.")
     return call_gemini_api(f"{prompt}\n\n{script}")
 
-def generate_thumbnail_image_with_retry(script, upload_id, retries=3, delay=5):
+def generate_thumbnail_image_with_retry(thumbnail_prompt, upload_id, retries=2, delay=5):
     for attempt in range(retries):
         print(f"Attempt {attempt + 1} of {retries} to generate thumbnail...")
-        thumbnail_url = generate_thumbnail_image(script, upload_id)
+        thumbnail_url = generate_thumbnail_image(thumbnail_prompt, upload_id)
         
         if thumbnail_url:
             return thumbnail_url
@@ -149,6 +149,7 @@ def generate_thumbnail_image(script, upload_id):
             "sampleCount": 1
         }
     }
+    print(request_body)
     
     response = requests.post(ENDPOINT_URL, json=request_body, headers=headers)
     
@@ -181,6 +182,7 @@ def generate_thumbnail_image(script, upload_id):
                 print("Error: Image data not found in predictions.")
         else:
             print(f"Error: No valid predictions found in response. Response: {response_json}")
+            print(response)
     else:
         print(f"Error: {response.status_code}, {response.text}")
     
@@ -255,7 +257,12 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
         prompt_script = [PROMPTS[language]['script']] + uploaded_files
         generated_script = call_gemini_api(prompt_script)
 
-        thumbnail_url = generate_thumbnail_image_with_retry(generated_script, upload_id, retries=3, delay=5)
+        del uploaded_files
+        gc.collect()
+
+        thumbnail_prompt = generate_thumbnail_prompt(generated_script)
+
+        thumbnail_url = generate_thumbnail_image_with_retry(thumbnail_prompt, upload_id, retries=2, delay=5)
 
         if thumbnail_url is None:
             raise Exception("Failed to generate thumbnail after multiple attempts.")
