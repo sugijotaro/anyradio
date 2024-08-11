@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:overflow_text_animated/overflow_text_animated.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
 import 'radio_detail_screen.dart';
 
@@ -26,22 +27,27 @@ class NowPlayingBar extends StatelessWidget {
         },
         child: Container(
           color: Colors.black.withOpacity(0.9),
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Image.network(
-                  viewModel.currentlyPlayingRadio!.thumbnail,
-                  fit: BoxFit.cover,
-                  width: 50,
-                  height: 50,
+                contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(
+                    viewModel.currentlyPlayingRadio!.thumbnail,
+                    fit: BoxFit.cover,
+                    width: 40,
+                    height: 40,
+                  ),
                 ),
-                title: Text(
-                  viewModel.currentlyPlayingRadio!.title,
+                title: OverflowTextAnimated(
+                  text: viewModel.currentlyPlayingRadio!.title,
                   style: TextStyle(color: Colors.white),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  curve: Curves.linear,
+                  animation: OverFlowTextAnimations.scrollOpposite,
+                  animateDuration: Duration(milliseconds: 1500),
                 ),
                 trailing: IconButton(
                   icon: Icon(
@@ -59,18 +65,15 @@ class NowPlayingBar extends StatelessWidget {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ProgressBar(
-                  progress: viewModel.progressBarState.current,
-                  buffered: viewModel.progressBarState.buffered,
-                  total: viewModel.progressBarState.total,
-                  onSeek: (Duration position) {
-                    viewModel.seek(position);
-                  },
-                  timeLabelLocation: TimeLabelLocation.none,
-                  thumbRadius: 0.0,
-                ),
+              ProgressBar(
+                progress: viewModel.progressBarState.current,
+                buffered: viewModel.progressBarState.buffered,
+                total: viewModel.progressBarState.total,
+                onSeek: (Duration position) {
+                  viewModel.seek(position);
+                },
+                timeLabelLocation: TimeLabelLocation.none,
+                thumbRadius: 0.0,
               ),
             ],
           ),
