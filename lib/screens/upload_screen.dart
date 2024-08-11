@@ -62,7 +62,6 @@ class _UploadScreenState extends State<UploadScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.uploadImages),
-          toolbarHeight: 28.0,
         ),
         body: Consumer<UploadViewModel>(
           builder: (context, viewModel, child) {

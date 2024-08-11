@@ -17,7 +17,6 @@ class RadioListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.anyRadio),
-        toolbarHeight: 28.0,
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
