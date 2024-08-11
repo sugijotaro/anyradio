@@ -64,7 +64,7 @@ class RadioListScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 20, bottom: 12),
                     child: Text(
-                      "新着",
+                      l10n.newArrivals,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -152,7 +152,7 @@ class RadioListScreen extends StatelessWidget {
     if (userRadios.isEmpty) return SizedBox.shrink();
 
     return SectionWithHorizontalScroll(
-      title: 'l10n.yourPostedRadios',
+      title: l10n.yourPostedRadios,
       radios: userRadios,
       itemWidth: 120,
       itemHeight: 120,
@@ -172,7 +172,6 @@ class RadioListScreen extends StatelessWidget {
   }
 
   String genreToString(RadioGenre genre, L10n l10n) {
-    // Genre translation logic
     switch (genre) {
       case RadioGenre.comedy:
         return l10n.comedyGenre;
