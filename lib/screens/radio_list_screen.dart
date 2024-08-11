@@ -60,6 +60,49 @@ class RadioListScreen extends StatelessWidget {
                         );
                       },
                     ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Text(
+                      "急上昇",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 180,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: viewModel.radios.length,
+                      itemBuilder: (context, index) {
+                        var radio = viewModel.radios[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (viewModel.currentlyPlayingRadio?.id !=
+                                  radio.id) {
+                                viewModel.fetchRadioById(radio.id);
+                              }
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.black,
+                                useSafeArea: true,
+                                builder: (context) => RadioDetailScreen(),
+                              );
+                            },
+                            child: RadioGridItem(
+                              radio: radio,
+                              width: 120,
+                              height: 120,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                   SizedBox(height: 16),
                   GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -73,7 +116,11 @@ class RadioListScreen extends StatelessWidget {
                     itemCount: viewModel.radios.length,
                     itemBuilder: (context, index) {
                       var radio = viewModel.radios[index];
-                      return RadioGridItem(radio: radio);
+                      return RadioGridItem(
+                        radio: radio,
+                        width: MediaQuery.of(context).size.width / 2 - 16,
+                        height: MediaQuery.of(context).size.width / 2 - 16,
+                      );
                     },
                   ),
                 ],
@@ -102,10 +149,14 @@ class RadioListScreen extends StatelessWidget {
                         leading: Image.network(
                           viewModel.currentlyPlayingRadio!.thumbnail,
                           fit: BoxFit.cover,
+                          width: 50,
+                          height: 50,
                         ),
                         title: Text(
                           viewModel.currentlyPlayingRadio!.title,
                           style: TextStyle(color: Colors.white),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
                           icon: Icon(
