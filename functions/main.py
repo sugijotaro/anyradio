@@ -264,9 +264,6 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
 
         thumbnail_url = generate_thumbnail_image_with_retry(thumbnail_prompt, upload_id, retries=2, delay=5)
 
-        if thumbnail_url is None:
-            raise Exception("Failed to generate thumbnail after multiple attempts.")
-
         prompt_title = generate_prompt('title', generated_script, language)
         prompt_description = generate_prompt('description', generated_script, language)
 
@@ -282,7 +279,7 @@ def process_upload(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | Non
             'description': generated_description,
             'script': generated_script,
             'audioUrl': audio_url,
-            'thumbnail': thumbnail_url,
+            'thumbnail': thumbnail_url if thumbnail_url else "",
             'uploaderId': data.get('userId'),
             'uploadDate': firestore.SERVER_TIMESTAMP,
             'comments': [],
