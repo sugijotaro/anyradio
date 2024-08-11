@@ -15,6 +15,14 @@ class RadioListScreen extends StatelessWidget {
     final l10n = L10n.of(context);
     final viewModel = Provider.of<RadioListViewModel>(context, listen: true);
 
+    final genresWithCounts = RadioGenre.values.map((genre) {
+      final genreRadios =
+          viewModel.radios.where((radio) => radio.genre == genre).toList();
+      return MapEntry(genre, genreRadios.length);
+    }).toList();
+
+    genresWithCounts.sort((a, b) => b.value.compareTo(a.value));
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.anyRadio),
@@ -63,7 +71,8 @@ class RadioListScreen extends StatelessWidget {
                         );
                       },
                     ),
-                  ...RadioGenre.values.map((genre) {
+                  ...genresWithCounts.map((entry) {
+                    final genre = entry.key;
                     final genreRadios = viewModel.radios
                         .where((radio) => radio.genre == genre)
                         .toList();
