@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:overflow_text_animated/overflow_text_animated.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -97,14 +98,13 @@ class RadioDetailScreen extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        radio.title,
+                      child: OverflowTextAnimated(
+                        text: radio.title,
                         style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                        curve: Curves.linear,
+                        animation: OverFlowTextAnimations.scrollOpposite,
+                        animateDuration: Duration(milliseconds: 1500),
                       ),
                     ),
                     Padding(
