@@ -21,7 +21,7 @@ class RadioListScreen extends StatelessWidget {
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
-              print('Selected filter: $value');
+              viewModel.setLanguageFilter(value);
             },
             itemBuilder: (BuildContext context) {
               return [
@@ -30,11 +30,11 @@ class RadioListScreen extends StatelessWidget {
                   child: Text(l10n.showAllLanguages),
                 ),
                 PopupMenuItem<String>(
-                  value: 'english',
+                  value: 'en',
                   child: Text(l10n.showEnglishOnly),
                 ),
                 PopupMenuItem<String>(
-                  value: 'japanese',
+                  value: 'ja',
                   child: Text(l10n.showJapaneseOnly),
                 ),
               ];

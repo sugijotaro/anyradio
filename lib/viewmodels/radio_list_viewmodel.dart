@@ -34,11 +34,14 @@ class RadioListViewModel extends ChangeNotifier {
   List<custom_radio.Radio> radios = [];
   custom_radio.Radio? currentlyPlayingRadio;
 
+  String selectedLanguage = 'all';
+
   ProgressBarState progressBarState = ProgressBarState(
     current: Duration.zero,
     buffered: Duration.zero,
     total: Duration.zero,
   );
+
   AudioState audioState = AudioState.paused;
   late StreamSubscription _playbackSubscription;
   late StreamSubscription _progressBarSubscription;
@@ -52,9 +55,19 @@ class RadioListViewModel extends ChangeNotifier {
   Future<void> fetchRadios() async {
     final radiosStream = _radioService.getRadios();
     radiosStream.listen((radiosData) {
-      radios = radiosData;
+      radios = radiosData.where((radio) {
+        if (selectedLanguage == 'all') {
+          return true;
+        }
+        return radio.language == selectedLanguage;
+      }).toList();
       notifyListeners();
     });
+  }
+
+  void setLanguageFilter(String language) {
+    selectedLanguage = language;
+    fetchRadios();
   }
 
   Future<void> fetchRadioById(String id) async {
