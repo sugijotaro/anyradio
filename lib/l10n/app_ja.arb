@@ -21,7 +21,7 @@
   "upload": "アップロード",
   "doNotCloseApp": "コンテンツをアップロード中です。アプリを閉じないでください。",
   "uploadComplete": "アップロード完了",
-  "uploadCompleteMessage": "コンテンツが正常にアップロードされました。",
+  "uploadCompleteMessage": "コンテンツが正常にアップロードされました。Geminiによって素晴らしいラジオが作成されるまで、1分ほどお待ちください！",
   "ok": "OK",
   "deleteConfirmationTitle": "削除の確認",
   "deleteConfirmationMessage": "このラジオを削除しますか？",
