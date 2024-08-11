@@ -4,14 +4,39 @@ import 'package:overflow_text_animated/overflow_text_animated.dart';
 import '../viewmodels/radio_list_viewmodel.dart';
 import 'radio_detail_screen.dart';
 
-class NowPlayingBar extends StatelessWidget {
+class NowPlayingBar extends StatefulWidget {
   final RadioListViewModel viewModel;
 
   NowPlayingBar({required this.viewModel});
 
   @override
+  _NowPlayingBarState createState() => _NowPlayingBarState();
+}
+
+class _NowPlayingBarState extends State<NowPlayingBar> {
+  bool _isVisible = true;
+
+  @override
+  void didUpdateWidget(NowPlayingBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.viewModel.currentlyPlayingRadio?.id !=
+        widget.viewModel.currentlyPlayingRadio?.id) {
+      setState(() {
+        _isVisible = false;
+      });
+      Future.delayed(Duration(milliseconds: 50), () {
+        setState(() {
+          _isVisible = true;
+        });
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (viewModel.currentlyPlayingRadio == null) return SizedBox.shrink();
+    if (widget.viewModel.currentlyPlayingRadio == null)
+      return SizedBox.shrink();
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -36,41 +61,45 @@ class NowPlayingBar extends StatelessWidget {
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(
-                    viewModel.currentlyPlayingRadio!.thumbnail,
+                    widget.viewModel.currentlyPlayingRadio!.thumbnail,
                     fit: BoxFit.cover,
                     width: 40,
                     height: 40,
                   ),
                 ),
-                title: OverflowTextAnimated(
-                  text: viewModel.currentlyPlayingRadio!.title,
-                  style: TextStyle(color: Colors.white),
-                  curve: Curves.linear,
-                  animation: OverFlowTextAnimations.scrollOpposite,
-                  animateDuration: Duration(milliseconds: 1500),
+                title: Visibility(
+                  visible: _isVisible,
+                  child: OverflowTextAnimated(
+                    key: ValueKey(widget.viewModel.currentlyPlayingRadio!.id),
+                    text: widget.viewModel.currentlyPlayingRadio!.title,
+                    style: TextStyle(color: Colors.white),
+                    curve: Curves.linear,
+                    animation: OverFlowTextAnimations.scrollOpposite,
+                    animateDuration: Duration(milliseconds: 1500),
+                  ),
                 ),
                 trailing: IconButton(
                   icon: Icon(
-                    viewModel.audioState == AudioState.playing
+                    widget.viewModel.audioState == AudioState.playing
                         ? Icons.pause
                         : Icons.play_arrow,
                     color: Colors.white,
                   ),
                   onPressed: () {
-                    if (viewModel.audioState == AudioState.playing) {
-                      viewModel.pause();
+                    if (widget.viewModel.audioState == AudioState.playing) {
+                      widget.viewModel.pause();
                     } else {
-                      viewModel.play();
+                      widget.viewModel.play();
                     }
                   },
                 ),
               ),
               ProgressBar(
-                progress: viewModel.progressBarState.current,
-                buffered: viewModel.progressBarState.buffered,
-                total: viewModel.progressBarState.total,
+                progress: widget.viewModel.progressBarState.current,
+                buffered: widget.viewModel.progressBarState.buffered,
+                total: widget.viewModel.progressBarState.total,
                 onSeek: (Duration position) {
-                  viewModel.seek(position);
+                  widget.viewModel.seek(position);
                 },
                 timeLabelLocation: TimeLabelLocation.none,
                 thumbRadius: 0.0,
