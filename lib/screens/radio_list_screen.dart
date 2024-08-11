@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../viewmodels/radio_list_viewmodel.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'radio_grid_item.dart';
+import '../viewmodels/radio_list_viewmodel.dart';
 import 'radio_detail_screen.dart';
 import 'horizontal_card_tile.dart';
 import 'section_with_horizontal_scroll.dart';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import '../models/radio.dart';
 
 class RadioListScreen extends StatelessWidget {
   @override
@@ -62,44 +63,32 @@ class RadioListScreen extends StatelessWidget {
                         );
                       },
                     ),
-                  SectionWithHorizontalScroll(
-                    title: "急上昇",
-                    radios: viewModel.radios,
-                    itemWidth: 120,
-                    itemHeight: 120,
-                    onTap: (radio) {
-                      if (viewModel.currentlyPlayingRadio?.id != radio.id) {
-                        viewModel.fetchRadioById(radio.id);
-                      }
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.black,
-                        useSafeArea: true,
-                        builder: (context) => RadioDetailScreen(),
-                      );
-                    },
-                  ),
+                  ...RadioGenre.values.map((genre) {
+                    final genreRadios = viewModel.radios
+                        .where((radio) => radio.genre == genre)
+                        .toList();
+                    if (genreRadios.isEmpty) return SizedBox.shrink();
+
+                    return SectionWithHorizontalScroll(
+                      title: genreToString(genre, l10n),
+                      radios: genreRadios,
+                      itemWidth: 120,
+                      itemHeight: 120,
+                      onTap: (radio) {
+                        if (viewModel.currentlyPlayingRadio?.id != radio.id) {
+                          viewModel.fetchRadioById(radio.id);
+                        }
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.black,
+                          useSafeArea: true,
+                          builder: (context) => RadioDetailScreen(),
+                        );
+                      },
+                    );
+                  }).toList(),
                   SizedBox(height: 16),
-                  GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
-                      childAspectRatio: 0.75,
-                    ),
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: viewModel.radios.length,
-                    itemBuilder: (context, index) {
-                      var radio = viewModel.radios[index];
-                      return RadioGridItem(
-                        radio: radio,
-                        width: MediaQuery.of(context).size.width / 2 - 16,
-                        height: MediaQuery.of(context).size.width / 2 - 16,
-                      );
-                    },
-                  ),
                 ],
               ),
             ),
@@ -172,5 +161,42 @@ class RadioListScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String genreToString(RadioGenre genre, L10n l10n) {
+    switch (genre) {
+      case RadioGenre.comedy:
+        return l10n.comedyGenre;
+      case RadioGenre.news:
+        return l10n.newsGenre;
+      case RadioGenre.education:
+        return l10n.educationGenre;
+      case RadioGenre.parenting:
+        return l10n.parentingGenre;
+      case RadioGenre.mentalHealth:
+        return l10n.mentalHealthGenre;
+      case RadioGenre.romance:
+        return l10n.romanceGenre;
+      case RadioGenre.mystery:
+        return l10n.mysteryGenre;
+      case RadioGenre.business:
+        return l10n.businessGenre;
+      case RadioGenre.entertainment:
+        return l10n.entertainmentGenre;
+      case RadioGenre.history:
+        return l10n.historyGenre;
+      case RadioGenre.health:
+        return l10n.healthGenre;
+      case RadioGenre.science:
+        return l10n.scienceGenre;
+      case RadioGenre.sports:
+        return l10n.sportsGenre;
+      case RadioGenre.fiction:
+        return l10n.fictionGenre;
+      case RadioGenre.religion:
+        return l10n.religionGenre;
+      default:
+        return '';
+    }
   }
 }

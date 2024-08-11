@@ -27,5 +27,20 @@
   "deleteConfirmationMessage": "Do you want to delete this radio?",
   "cancel": "Cancel",
   "delete": "Delete",
-  "radioDeleted": "The radio has been deleted."
+  "radioDeleted": "The radio has been deleted.",
+  "comedyGenre": "Comedy",
+  "newsGenre": "News",
+  "educationGenre": "Education",
+  "parentingGenre": "Parenting",
+  "mentalHealthGenre": "Mental Health",
+  "romanceGenre": "Romance",
+  "mysteryGenre": "Mystery",
+  "businessGenre": "Business",
+  "entertainmentGenre": "Entertainment",
+  "historyGenre": "History",
+  "healthGenre": "Health",
+  "scienceGenre": "Science",
+  "sportsGenre": "Sports",
+  "fictionGenre": "Fiction",
+  "religionGenre": "Religion"
 }

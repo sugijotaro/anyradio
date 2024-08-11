@@ -27,5 +27,20 @@
   "deleteConfirmationMessage": "このラジオを削除しますか？",
   "cancel": "キャンセル",
   "delete": "削除",
-  "radioDeleted": "ラジオが削除されました。"
+  "radioDeleted": "ラジオが削除されました。",
+  "comedyGenre": "コメディ",
+  "newsGenre": "ニュース",
+  "educationGenre": "教育",
+  "parentingGenre": "子育て",
+  "mentalHealthGenre": "メンタルヘルス",
+  "romanceGenre": "ロマンス",
+  "mysteryGenre": "ミステリー",
+  "businessGenre": "ビジネス",
+  "entertainmentGenre": "エンターテイメント",
+  "historyGenre": "歴史",
+  "healthGenre": "健康",
+  "scienceGenre": "サイエンス",
+  "sportsGenre": "スポーツ",
+  "fictionGenre": "フィクション",
+  "religionGenre": "宗教"
 }
